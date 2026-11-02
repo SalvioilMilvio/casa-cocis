@@ -1,0 +1,1188 @@
+{
+ "meta": {
+  "titolo": "Acqua — Condominio Cocis",
+  "luogo": "Castiglione Torinese",
+  "aggiornato": "2026-11-01",
+  "fornitore": "SMAT",
+  "soglie": {
+   "generale_giallo": 2.0,
+   "generale_rosso": 3.0,
+   "individuale_rosso": 0.7
+  },
+  "note_dati": [
+   "Il contatore generale e' stato sostituito nel 2024: le due serie non si sommano.",
+   "I consumi sono calcolati dal frontend sulla differenza fra letture consecutive."
+  ],
+  "avvisi": [
+   "D.: il 07/08/2014 la lettura scende da 5443 a 5433 (-10 mc)",
+   "bolletta nel foglio '2 Q 22 ' identica a una gia' letta: scartata"
+  ]
+ },
+ "utenti": [
+  {
+   "id": "u1",
+   "nome": "B."
+  },
+  {
+   "id": "u2",
+   "nome": "M."
+  },
+  {
+   "id": "u3",
+   "nome": "Mt."
+  },
+  {
+   "id": "u4",
+   "nome": "D."
+  }
+ ],
+ "generale": [
+  {
+   "data": "2017-03-09",
+   "lettura": 29137,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2017-04-21",
+   "lettura": 29155,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2017-07-20",
+   "lettura": 29281,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2017-07-24",
+   "lettura": 29296,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2017-07-27",
+   "lettura": 29301,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2017-10-31",
+   "lettura": 29490,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2018-03-22",
+   "lettura": 29593,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2018-03-27",
+   "lettura": 29597,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2018-04-02",
+   "lettura": 29601,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2021-09-06",
+   "lettura": 31488,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-01-05",
+   "lettura": 31612,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-05-20",
+   "lettura": 32080,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-05-21",
+   "lettura": 32082,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-05-23",
+   "lettura": 32088,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-06-01",
+   "lettura": 32101,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2022-06-02",
+   "lettura": 32104,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-01-20",
+   "lettura": 32555,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-05-04",
+   "lettura": 32729,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-08-18",
+   "lettura": 32979,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-11-29",
+   "lettura": 33289,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-12-01",
+   "lettura": 33309,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-12-03",
+   "lettura": 33331,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2023-12-21",
+   "lettura": 33352,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2024-02-01",
+   "lettura": 33407,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2024-02-04",
+   "lettura": 33411,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2024-02-24",
+   "lettura": 33427,
+   "contatore": "vecchio"
+  },
+  {
+   "data": "2024-10-20",
+   "lettura": 739,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-01-02",
+   "lettura": 892,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-01-06",
+   "lettura": 898,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-02-02",
+   "lettura": 933,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-03-03",
+   "lettura": 965,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-03-31",
+   "lettura": 1006,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-05-01",
+   "lettura": 1050,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-06-02",
+   "lettura": 1108,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-07-02",
+   "lettura": 1204,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-08-01",
+   "lettura": 1287,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-09-01",
+   "lettura": 1374,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-10-01",
+   "lettura": 1448,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2025-11-03",
+   "lettura": 1517,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-01-01",
+   "lettura": 1643,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-02-02",
+   "lettura": 1712,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-03-01",
+   "lettura": 1769,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-04-01",
+   "lettura": 1851,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-05-07",
+   "lettura": 1947,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-05-15",
+   "lettura": 1957,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-06-02",
+   "lettura": 2015,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-07-05",
+   "lettura": 2124,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-04",
+   "lettura": 2236,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-05",
+   "lettura": 2243,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-06",
+   "lettura": 2245,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-08",
+   "lettura": 2248,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-09",
+   "lettura": 2251,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-10",
+   "lettura": 2253,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-11",
+   "lettura": 2254,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-14",
+   "lettura": 2260,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-28",
+   "lettura": 2288,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-08-31",
+   "lettura": 2292,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-10-01",
+   "lettura": 2339,
+   "contatore": "nuovo"
+  }
+ ],
+ "individuali": {
+  "u1": [
+   {
+    "data": "2011-11-19",
+    "lettura": 5814
+   },
+   {
+    "data": "2012-06-08",
+    "lettura": 6588
+   },
+   {
+    "data": "2013-03-13",
+    "lettura": 7469
+   },
+   {
+    "data": "2013-08-25",
+    "lettura": 7512
+   },
+   {
+    "data": "2014-08-07",
+    "lettura": 7575
+   },
+   {
+    "data": "2015-04-07",
+    "lettura": 7722
+   },
+   {
+    "data": "2015-08-27",
+    "lettura": 7786
+   },
+   {
+    "data": "2016-08-03",
+    "lettura": 7861
+   },
+   {
+    "data": "2016-08-25",
+    "lettura": 7863
+   },
+   {
+    "data": "2017-03-10",
+    "lettura": 7865
+   },
+   {
+    "data": "2017-10-31",
+    "lettura": 7907
+   },
+   {
+    "data": "2018-03-20",
+    "lettura": 7916
+   },
+   {
+    "data": "2019-05-12",
+    "lettura": 7991
+   },
+   {
+    "data": "2019-09-01",
+    "lettura": 8023
+   },
+   {
+    "data": "2019-12-23",
+    "lettura": 8027
+   },
+   {
+    "data": "2020-05-23",
+    "lettura": 8088
+   },
+   {
+    "data": "2020-08-27",
+    "lettura": 8139
+   },
+   {
+    "data": "2020-12-27",
+    "lettura": 8202
+   },
+   {
+    "data": "2021-05-07",
+    "lettura": 8264
+   },
+   {
+    "data": "2021-09-06",
+    "lettura": 8334
+   },
+   {
+    "data": "2022-01-05",
+    "lettura": 8393
+   },
+   {
+    "data": "2022-05-21",
+    "lettura": 8454
+   },
+   {
+    "data": "2022-06-02",
+    "lettura": 8461
+   },
+   {
+    "data": "2022-09-09",
+    "lettura": 8518
+   },
+   {
+    "data": "2024-02-01",
+    "lettura": 9030
+   },
+   {
+    "data": "2024-05-14",
+    "lettura": 9104
+   },
+   {
+    "data": "2024-10-20",
+    "lettura": 9177
+   },
+   {
+    "data": "2025-01-03",
+    "lettura": 9208
+   },
+   {
+    "data": "2025-10-01",
+    "lettura": 9361
+   },
+   {
+    "data": "2026-01-13",
+    "lettura": 9487
+   },
+   {
+    "data": "2026-04-01",
+    "lettura": 9642
+   },
+   {
+    "data": "2026-08-05",
+    "lettura": 9720
+   },
+   {
+    "data": "2026-09-02",
+    "lettura": 9737
+   },
+   {
+    "data": "2026-10-03",
+    "lettura": 9764
+   }
+  ],
+  "u2": [
+   {
+    "data": "2012-03-13",
+    "lettura": 7492
+   },
+   {
+    "data": "2013-03-13",
+    "lettura": 7492
+   },
+   {
+    "data": "2013-08-25",
+    "lettura": 7508
+   },
+   {
+    "data": "2014-02-26",
+    "lettura": 7520
+   },
+   {
+    "data": "2014-08-07",
+    "lettura": 7534
+   },
+   {
+    "data": "2015-04-07",
+    "lettura": 7561
+   },
+   {
+    "data": "2016-08-03",
+    "lettura": 7694
+   },
+   {
+    "data": "2017-03-10",
+    "lettura": 7754
+   },
+   {
+    "data": "2017-10-31",
+    "lettura": 7857
+   },
+   {
+    "data": "2018-03-20",
+    "lettura": 7860
+   },
+   {
+    "data": "2019-05-12",
+    "lettura": 7964
+   },
+   {
+    "data": "2019-09-01",
+    "lettura": 7992
+   },
+   {
+    "data": "2019-12-21",
+    "lettura": 8015
+   },
+   {
+    "data": "2020-05-23",
+    "lettura": 8016
+   },
+   {
+    "data": "2020-08-27",
+    "lettura": 8023
+   },
+   {
+    "data": "2022-05-21",
+    "lettura": 8322
+   },
+   {
+    "data": "2022-06-02",
+    "lettura": 8326
+   },
+   {
+    "data": "2022-09-09",
+    "lettura": 8332
+   },
+   {
+    "data": "2024-02-01",
+    "lettura": 8380
+   },
+   {
+    "data": "2024-05-14",
+    "lettura": 8380
+   },
+   {
+    "data": "2024-10-20",
+    "lettura": 8395
+   },
+   {
+    "data": "2025-01-03",
+    "lettura": 8395
+   },
+   {
+    "data": "2025-10-01",
+    "lettura": 8399
+   },
+   {
+    "data": "2026-01-13",
+    "lettura": 8408
+   },
+   {
+    "data": "2026-04-01",
+    "lettura": 8408
+   },
+   {
+    "data": "2026-08-05",
+    "lettura": 8410
+   },
+   {
+    "data": "2026-09-02",
+    "lettura": 8410
+   },
+   {
+    "data": "2026-10-03",
+    "lettura": 8411
+   }
+  ],
+  "u3": [
+   {
+    "data": "2011-11-19",
+    "lettura": 3042
+   },
+   {
+    "data": "2012-06-08",
+    "lettura": 3111
+   },
+   {
+    "data": "2013-03-13",
+    "lettura": 3222
+   },
+   {
+    "data": "2013-08-25",
+    "lettura": 3303
+   },
+   {
+    "data": "2014-02-26",
+    "lettura": 3369
+   },
+   {
+    "data": "2014-08-07",
+    "lettura": 3432
+   },
+   {
+    "data": "2015-04-07",
+    "lettura": 3522
+   },
+   {
+    "data": "2016-08-03",
+    "lettura": 3737
+   },
+   {
+    "data": "2017-03-10",
+    "lettura": 3834
+   },
+   {
+    "data": "2017-10-31",
+    "lettura": 3944
+   },
+   {
+    "data": "2018-03-20",
+    "lettura": 4013
+   },
+   {
+    "data": "2018-06-01",
+    "lettura": 4057
+   },
+   {
+    "data": "2019-05-12",
+    "lettura": 4218
+   },
+   {
+    "data": "2019-09-01",
+    "lettura": 4250
+   },
+   {
+    "data": "2019-12-20",
+    "lettura": 4299
+   },
+   {
+    "data": "2020-05-23",
+    "lettura": 4372
+   },
+   {
+    "data": "2020-12-28",
+    "lettura": 4460
+   },
+   {
+    "data": "2021-05-07",
+    "lettura": 4518
+   },
+   {
+    "data": "2021-09-06",
+    "lettura": 4688
+   },
+   {
+    "data": "2022-01-05",
+    "lettura": 4751
+   },
+   {
+    "data": "2022-05-21",
+    "lettura": 4828
+   },
+   {
+    "data": "2022-06-02",
+    "lettura": 4838
+   },
+   {
+    "data": "2022-09-09",
+    "lettura": 4917
+   },
+   {
+    "data": "2024-02-01",
+    "lettura": 5239
+   },
+   {
+    "data": "2024-05-14",
+    "lettura": 5281
+   },
+   {
+    "data": "2024-05-15",
+    "lettura": 5282
+   },
+   {
+    "data": "2024-10-20",
+    "lettura": 5357
+   },
+   {
+    "data": "2025-03-01",
+    "lettura": 5387
+   },
+   {
+    "data": "2025-10-01",
+    "lettura": 5489
+   },
+   {
+    "data": "2026-01-01",
+    "lettura": 5507
+   },
+   {
+    "data": "2026-04-01",
+    "lettura": 5532
+   },
+   {
+    "data": "2026-08-05",
+    "lettura": 5579
+   },
+   {
+    "data": "2026-10-01",
+    "lettura": 5600
+   }
+  ],
+  "u4": [
+   {
+    "data": "2011-11-19",
+    "lettura": 4865
+   },
+   {
+    "data": "2012-06-08",
+    "lettura": 4950
+   },
+   {
+    "data": "2013-03-13",
+    "lettura": 5101
+   },
+   {
+    "data": "2013-08-25",
+    "lettura": 5240
+   },
+   {
+    "data": "2014-02-26",
+    "lettura": 5443
+   },
+   {
+    "data": "2014-08-07",
+    "lettura": 5433
+   },
+   {
+    "data": "2015-04-07",
+    "lettura": 5495
+   },
+   {
+    "data": "2016-08-03",
+    "lettura": 5658
+   },
+   {
+    "data": "2017-03-10",
+    "lettura": 5735
+   },
+   {
+    "data": "2017-10-31",
+    "lettura": 5826
+   },
+   {
+    "data": "2018-03-20",
+    "lettura": 5882
+   },
+   {
+    "data": "2019-05-12",
+    "lettura": 6063
+   },
+   {
+    "data": "2019-09-01",
+    "lettura": 6117
+   },
+   {
+    "data": "2019-12-23",
+    "lettura": 6166
+   },
+   {
+    "data": "2020-05-23",
+    "lettura": 6280
+   },
+   {
+    "data": "2020-08-27",
+    "lettura": 6462
+   },
+   {
+    "data": "2020-12-27",
+    "lettura": 6703
+   },
+   {
+    "data": "2021-05-07",
+    "lettura": 6785
+   },
+   {
+    "data": "2021-09-05",
+    "lettura": 7005
+   },
+   {
+    "data": "2022-01-05",
+    "lettura": 7076
+   },
+   {
+    "data": "2022-05-21",
+    "lettura": 7250
+   },
+   {
+    "data": "2022-06-02",
+    "lettura": 7266
+   },
+   {
+    "data": "2022-09-09",
+    "lettura": 7437
+   },
+   {
+    "data": "2024-02-01",
+    "lettura": 7976
+   },
+   {
+    "data": "2024-05-14",
+    "lettura": 8024
+   },
+   {
+    "data": "2024-10-20",
+    "lettura": 8363
+   },
+   {
+    "data": "2025-01-03",
+    "lettura": 8448
+   },
+   {
+    "data": "2025-10-01",
+    "lettura": 8601
+   },
+   {
+    "data": "2026-01-13",
+    "lettura": 8650
+   },
+   {
+    "data": "2026-04-01",
+    "lettura": 8692
+   },
+   {
+    "data": "2026-08-05",
+    "lettura": 8849
+   },
+   {
+    "data": "2026-09-02",
+    "lettura": 8868
+   },
+   {
+    "data": "2026-10-03",
+    "lettura": 8880
+   }
+  ]
+ },
+ "note": [
+  {
+   "data": "2025-01-02",
+   "testo": "bolletta dic 24"
+  },
+  {
+   "data": "2026-04-01",
+   "testo": "bolletta apr 2026"
+  },
+  {
+   "data": "2026-05-07",
+   "testo": "riparazione cerrutti"
+  },
+  {
+   "data": "2026-08-05",
+   "testo": "bolletta ago 2026"
+  }
+ ],
+ "bollette": [
+  {
+   "id": "2026-08",
+   "foglio": "2026 08",
+   "etichetta": "Agosto 2026",
+   "importo": 1181.0,
+   "mc": 385,
+   "eur_mc": 3.068,
+   "periodo": {
+    "dal": "2026-04-01",
+    "al": "2026-08-04"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 9642,
+     "attuale": 9720,
+     "mc": 78
+    },
+    "u2": {
+     "precedente": 8408,
+     "attuale": 8410,
+     "mc": 2
+    },
+    "u3": {
+     "precedente": 5532,
+     "attuale": 5579,
+     "mc": 47
+    },
+    "u4": {
+     "precedente": 8692,
+     "attuale": 8849,
+     "mc": 157
+    }
+   }
+  },
+  {
+   "id": "2026-04",
+   "foglio": "2026 04",
+   "etichetta": "Aprile 2026",
+   "importo": 691.0,
+   "mc": 208,
+   "eur_mc": 3.322,
+   "periodo": {
+    "dal": "2026-01-01",
+    "al": "2026-04-01"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 9361,
+     "attuale": 9361,
+     "mc": 155
+    },
+    "u2": {
+     "precedente": 8408,
+     "attuale": 8408,
+     "mc": 0
+    },
+    "u3": {
+     "precedente": 5507,
+     "attuale": 5507,
+     "mc": 25
+    },
+    "u4": {
+     "precedente": 8601,
+     "attuale": 8601,
+     "mc": 42
+    }
+   }
+  }
+ ],
+ "bollette_da_verificare": [
+  {
+   "id": "2025",
+   "foglio": "2025",
+   "etichetta": "Gennaio 2026",
+   "importo": 736.0,
+   "mc": 751,
+   "eur_mc": 0.98,
+   "periodo": {
+    "dal": "2025-01-02",
+    "al": "2026-01-01"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 9208,
+     "attuale": 9361,
+     "mc": 153
+    },
+    "u2": {
+     "precedente": 8380,
+     "attuale": 8408,
+     "mc": 9
+    },
+    "u3": {
+     "precedente": 5239,
+     "attuale": 5507,
+     "mc": 18
+    },
+    "u4": {
+     "precedente": 7976,
+     "attuale": 8601,
+     "mc": 49
+    }
+   },
+   "motivo": "euro/mc fuori scala (0.98): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "4-2024",
+   "foglio": "4 2024",
+   "etichetta": "Gennaio 2025",
+   "importo": 1606.0,
+   "mc": 153,
+   "eur_mc": 10.497,
+   "periodo": {
+    "dal": "2024-10-20",
+    "al": "2025-01-02"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 9030,
+     "attuale": 9208,
+     "mc": 31
+    },
+    "u2": {
+     "precedente": 8380,
+     "attuale": 8380,
+     "mc": 0
+    },
+    "u3": {
+     "precedente": 5239,
+     "attuale": 5239,
+     "mc": 31
+    },
+    "u4": {
+     "precedente": 7976,
+     "attuale": 7976,
+     "mc": 85
+    }
+   },
+   "motivo": "euro/mc fuori scala (10.50): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "3-2024",
+   "foglio": "3 2024",
+   "etichetta": "Ottobre 2024",
+   "importo": 573.0,
+   "mc": 585,
+   "eur_mc": 0.979,
+   "periodo": {
+    "dal": "2024-05-12",
+    "al": "2024-10-20"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 9030,
+     "attuale": 9030,
+     "mc": 73
+    },
+    "u2": {
+     "precedente": 8380,
+     "attuale": 8380,
+     "mc": 15
+    },
+    "u3": {
+     "precedente": 5239,
+     "attuale": 5239,
+     "mc": 75
+    },
+    "u4": {
+     "precedente": 7976,
+     "attuale": 7976,
+     "mc": 339
+    }
+   },
+   "motivo": "euro/mc fuori scala (0.98): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "2-2024",
+   "foglio": "2 2024 ",
+   "etichetta": "Aprile 2024",
+   "importo": 883.0,
+   "mc": 602,
+   "eur_mc": 1.467,
+   "periodo": {
+    "dal": "2023-08-18",
+    "al": "2024-04-07"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 8518,
+     "attuale": 9030,
+     "mc": 74
+    },
+    "u2": {
+     "precedente": 8332,
+     "attuale": 8380,
+     "mc": 48
+    },
+    "u3": {
+     "precedente": 4917,
+     "attuale": 5239,
+     "mc": 42
+    },
+    "u4": {
+     "precedente": 7437,
+     "attuale": 7976,
+     "mc": 48
+    }
+   },
+   "motivo": "euro/mc fuori scala (1.47): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "1-2024",
+   "foglio": "1 2024",
+   "etichetta": "Febbraio 2024",
+   "importo": 1576.0,
+   "mc": 1303,
+   "eur_mc": 1.21,
+   "periodo": {
+    "dal": "2022-09-09",
+    "al": "2024-02-01"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 8518,
+     "attuale": 9030,
+     "mc": 512
+    },
+    "u2": {
+     "precedente": 8332,
+     "attuale": 8380,
+     "mc": 48
+    },
+    "u3": {
+     "precedente": 4917,
+     "attuale": 5239,
+     "mc": 322
+    },
+    "u4": {
+     "precedente": 7437,
+     "attuale": 7976,
+     "mc": 539
+    }
+   },
+   "motivo": "euro/mc fuori scala (1.21): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "1-sem-23",
+   "foglio": "1 sem 23",
+   "etichetta": "Settembre 2022",
+   "importo": 1061.0,
+   "mc": 22,
+   "eur_mc": 48.227,
+   "periodo": {
+    "dal": "2022-05-20",
+    "al": "2022-09-09"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 8454,
+     "attuale": 8518,
+     "mc": 64
+    },
+    "u2": {
+     "precedente": 8322,
+     "attuale": 8332,
+     "mc": 10
+    },
+    "u3": {
+     "precedente": 4828,
+     "attuale": 4917,
+     "mc": 89
+    },
+    "u4": {
+     "precedente": 7250,
+     "attuale": 7437,
+     "mc": 187
+    }
+   },
+   "motivo": "euro/mc fuori scala (48.23): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  },
+  {
+   "id": "1-Q-22",
+   "foglio": "1 Q 22",
+   "etichetta": "Maggio 2022",
+   "importo": 612.0,
+   "mc": 470,
+   "eur_mc": 1.302,
+   "periodo": {
+    "dal": "2022-01-05",
+    "al": "2022-05-20"
+   },
+   "letture": {
+    "u1": {
+     "precedente": 8393,
+     "attuale": 8454,
+     "mc": 61
+    },
+    "u2": {
+     "precedente": 8033,
+     "attuale": 8322,
+     "mc": 289
+    },
+    "u3": {
+     "precedente": 4751,
+     "attuale": 4828,
+     "mc": 77
+    },
+    "u4": {
+     "precedente": 7076,
+     "attuale": 7250,
+     "mc": 174
+    }
+   },
+   "motivo": "euro/mc fuori scala (1.30): il foglio originale ha campi incoerenti, serve la bolletta cartacea per confermare"
+  }
+ ]
+}
