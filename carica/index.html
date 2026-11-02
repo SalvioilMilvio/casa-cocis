@@ -38,7 +38,7 @@
       <select id="contatore"></select>
     </div>
 
-    <label class="bott" for="foto">📷 Fotografa il contatore</label>
+    <label class="bott" id="bott-foto" for="foto" hidden>📷 Fotografa il contatore</label>
     <input id="foto" type="file" accept="image/*" capture="environment" hidden>
     <img id="prev" class="foto-prev" alt="Foto del contatore" hidden>
 
@@ -53,8 +53,7 @@
 </main>
 
 <script>
-/* Si riempie dopo la pubblicazione del servizio. */
-const SERVIZIO = '';
+const SERVIZIO = 'https://casa-cocis-letture.casa-cocis.workers.dev';
 const token = new URLSearchParams(location.hash.slice(1)).get('t') || '';
 const $ = id => document.getElementById(id);
 let contatore = null, conferma = false;
@@ -85,6 +84,9 @@ async function chi() {
   const c = await chiama('/chi', {});
   contatore = c.contatore;
   $('titolo').textContent = c.nome;
+  // Solo il generale ha il display leggibile: i rotondi si scrivono a mano.
+  $('bott-foto').hidden = contatore !== 'generale';
+  if (contatore !== 'generale') $('prev').hidden = true;
   const u = c.ultima;
   $('ultima').textContent = u ? `Ultima lettura: ${u.lettura} mc del ${u.data.split('-').reverse().join('/')}` : '';
   if (c.tutti) {
@@ -152,8 +154,12 @@ $('salva').addEventListener('click', async () => {
       avvisa(r.avviso + ' Se è giusto, premi di nuovo Salva.', 'warn');
     } else {
       conferma = false;
-      avvisa('Salvata. Grazie! La dashboard si aggiorna in un paio di minuti.', 'ok');
       await chi();
+      const a = r.allarme;
+      const dett = a ? ` ${String(a.mcg).replace('.', ',')} mc al giorno negli ultimi ${a.giorni} giorni.` : '';
+      if (a && a.livello === 'bad') avvisa('Salvata, ma ATTENZIONE: consumo oltre la soglia rossa.' + dett + ' Controlla che non ci siano perdite.', 'bad');
+      else if (a && a.livello === 'warn') avvisa('Salvata. Consumo sopra la soglia gialla.' + dett, 'warn');
+      else avvisa('Salvata. Consumo nella norma.' + dett + ' La dashboard si aggiorna in un paio di minuti.', 'ok');
     }
   } catch (err) {
     avvisa(err.message, 'bad');

@@ -45,6 +45,19 @@ export function controlla(dati, contatore, data, lettura, oggi) {
   return {};
 }
 
+/* Stesse soglie della formattazione condizionale del modello Excel. */
+export function allarme(dati, contatore, data, lettura) {
+  const prima = serieDi(dati, contatore).filter(r => r.data < data).at(-1);
+  if (!prima) return null;
+  const gg = Math.max(1, giorniTra(prima.data, data));
+  const mcg = (lettura - prima.lettura) / gg;
+  const s = dati.meta.soglie;
+  const livello = contatore === 'generale'
+    ? (mcg > s.generale_rosso ? 'bad' : mcg > s.generale_giallo ? 'warn' : 'ok')
+    : (mcg > s.individuale_rosso ? 'bad' : 'ok');
+  return { mcg: Math.round(mcg * 100) / 100, giorni: gg, livello };
+}
+
 /* Inserisce in ordine di data; se quel giorno c'è già una lettura, la corregge. */
 export function inserisci(dati, contatore, data, lettura, oggi) {
   const serie = serieDi(dati, contatore);

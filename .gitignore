@@ -5,3 +5,5 @@ estrai.py
 node_modules/
 .dev.vars
 .wrangler/
+.tokens.json
+link-personali.txt

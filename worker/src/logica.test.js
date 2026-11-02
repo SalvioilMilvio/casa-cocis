@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { contatorePermesso, controlla, inserisci } from './logica.js';
+import { allarme, contatorePermesso, controlla, inserisci } from './logica.js';
 
 const dati = () => ({
   meta: { aggiornato: '2026-10-03' },
@@ -35,6 +35,16 @@ test('blocca letture impossibili', () => {
 
 test('un salto enorme chiede conferma', () => {
   assert.ok(controlla(dati(), 'u1', OGGI, 19764, OGGI).avviso);
+});
+
+test('gli allarmi seguono le soglie del modello Excel', () => {
+  const d = dati();
+  d.meta.soglie = { generale_giallo: 2, generale_rosso: 3, individuale_rosso: .7 };
+  assert.equal(allarme(d, 'generale', '2026-10-11', 2354, OGGI).livello, 'ok');
+  assert.equal(allarme(d, 'generale', '2026-10-11', 2364, OGGI).livello, 'warn');
+  assert.equal(allarme(d, 'generale', '2026-10-11', 2374, OGGI).livello, 'bad');
+  assert.equal(allarme(d, 'u1', '2026-10-13', 9770, OGGI).livello, 'ok');
+  assert.equal(allarme(d, 'u1', '2026-10-13', 9772, OGGI).livello, 'bad');
 });
 
 test('inserisce in ordine e corregge lo stesso giorno', () => {
