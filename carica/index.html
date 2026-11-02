@@ -6,7 +6,8 @@
 <meta name="theme-color" content="#0b3d5c">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<title>Lettura contatore</title>
+<title>Inserimento dati</title>
+<link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
 <link rel="stylesheet" href="../style.css">
 <style>
@@ -49,7 +50,12 @@
 
 <script>
 const SERVIZIO = 'https://casa-cocis-letture.casa-cocis.workers.dev';
-const token = new URLSearchParams(location.hash.slice(1)).get('t') || '';
+// Il link personale si apre una volta: poi il bottone della dashboard basta su questo dispositivo.
+let token = new URLSearchParams(location.hash.slice(1)).get('t') || '';
+try {
+  if (token) localStorage.setItem('cocis-token', token);
+  else token = localStorage.getItem('cocis-token') || '';
+} catch (e) {}
 const $ = id => document.getElementById(id);
 let contatore = null, conferma = false;
 

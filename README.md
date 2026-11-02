@@ -5,7 +5,7 @@ nessun account, nessuna raccolta di dati da chi la visita.
 
 - **Acqua** (radice) — letture dei contatori, consumi, ripartizione delle bollette SMAT
   fra le quattro utenze del condominio.
-- **Energia** (`energia/`) — bilancio fotovoltaico, bollette Edison.
+- **Fotovoltaico** (`fotovoltaico/`) — bilancio fotovoltaico, bollette Edison.
 
 ## Come sono fatti i dati
 

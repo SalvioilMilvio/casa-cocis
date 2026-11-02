@@ -154,6 +154,8 @@ function sezStato(d, genNuovo, perGen, ultimoGiro) {
   }
 
   return `<section id="stato">
+    <a class="inserisci ${cl}" href="carica/">Inserimento dati
+      <small>Consumo ${etich}: ${n2(up.mcg)} mc/giorno</small></a>
     <h2>Stato attuale</h2>
     <div class="kpis">
       <div class="kpi">
