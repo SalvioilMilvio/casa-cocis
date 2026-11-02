@@ -63,7 +63,11 @@ section > h2{font-size:13px; text-transform:uppercase; letter-spacing:.09em; col
 .kpi .val{font-size:27px; font-weight:680; margin:6px 0 2px; letter-spacing:-.02em}
 .kpi .val small{font-size:15px; font-weight:500; color:var(--mut); letter-spacing:0}
 .kpi .hint{font-size:13px; color:var(--mut)}
-.kpi.ok .val{color:var(--ok)} .kpi.warn .val{color:var(--warn)} .kpi.bad .val{color:var(--bad)}
+.kpi.ok{background:#2e7d5b; border-color:#2e7d5b}
+.kpi.warn{background:#f5c518; border-color:#f5c518}
+.kpi.bad{background:#c62828; border-color:#c62828}
+.kpi.ok *,.kpi.bad *{color:#fff}
+.kpi.warn *{color:#2b2200}
 
 .tag{display:inline-block; font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px}
 .tag.ok{background:var(--okbg); color:var(--ok)}
