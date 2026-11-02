@@ -7,6 +7,7 @@ const IT = 'it-IT';
 const n0 = v => Number(v).toLocaleString(IT, { maximumFractionDigits: 0, useGrouping: true });
 const n2 = v => Number(v).toLocaleString(IT, { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true });
 const eur = v => '€ ' + n2(v);
+const nSoglia = v => Number(v).toLocaleString(IT, { maximumFractionDigits: 2 });
 const pct = v => (v * 100).toLocaleString(IT, { maximumFractionDigits: 1 }) + '%';
 const D = s => new Date(s + 'T00:00:00');
 const giorniTra = (a, b) => Math.round((D(b) - D(a)) / 86400000);
@@ -29,8 +30,10 @@ function periodi(serie) {
   return out;
 }
 
-const classeGen = v => v > S.generale_rosso ? 'bad' : v > S.generale_giallo ? 'warn' : 'ok';
-const classeInd = v => v > S.individuale_rosso ? 'bad' : 'ok';
+// Come nel foglio COCIS 26: rosso da 3 compreso, giallo oltre 1,7.
+const classeGen = v => v >= S.generale_rosso ? 'bad' : v > S.generale_giallo ? 'warn' : 'ok';
+// Ogni utenza ha la sua soglia, come nei fogli individuali.
+const classeInd = (v, id) => v > S.individuale_rosso[id] ? 'bad' : 'ok';
 
 /* ------------------------------------------------------------------ grafici */
 
@@ -75,29 +78,29 @@ ${n0(p.mc)} mc in ${p.giorni} giorni — ${n2(p.mcg)} mc/giorno</title></rect>`;
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img"
     aria-label="${opt.alt}">${g}${b}${x}</svg>
     <div class="legend">
-      <span><i style="background:var(--acqua)"></i>fino a ${n0(S.generale_giallo)} mc/giorno</span>
-      <span><i style="background:var(--warn)"></i>oltre ${n0(S.generale_giallo)}</span>
-      <span><i style="background:var(--bad)"></i>oltre ${n0(S.generale_rosso)}</span>
+      <span><i style="background:var(--acqua)"></i>fino a ${nSoglia(S.generale_giallo)} mc/giorno</span>
+      <span><i style="background:var(--warn)"></i>oltre ${nSoglia(S.generale_giallo)}</span>
+      <span><i style="background:var(--bad)"></i>da ${nSoglia(S.generale_rosso)}</span>
     </div>`;
 }
 
-function spark(per) {
+function spark(per, soglia) {
   const ult = per.slice(-9);
   if (ult.length < 2) return '';
   const W = 240, H = 38, P = 3;
-  const max = Math.max(...ult.map(p => p.mcg), S.individuale_rosso * 1.3);
+  const max = Math.max(...ult.map(p => p.mcg), soglia * 1.3);
   const px = i => P + (i / (ult.length - 1)) * (W - 2 * P);
   const py = v => H - P - (v / max) * (H - 2 * P);
   const pts = ult.map((p, i) => `${px(i).toFixed(1)},${py(p.mcg).toFixed(1)}`).join(' ');
   const last = ult[ult.length - 1];
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
-    <line x1="${P}" x2="${W - P}" y1="${py(S.individuale_rosso).toFixed(1)}"
-      y2="${py(S.individuale_rosso).toFixed(1)}" stroke="var(--bad)" stroke-width="1"
+    <line x1="${P}" x2="${W - P}" y1="${py(soglia).toFixed(1)}"
+      y2="${py(soglia).toFixed(1)}" stroke="var(--bad)" stroke-width="1"
       stroke-dasharray="4 3" opacity=".55"/>
     <polyline points="${pts}" fill="none" stroke="var(--blu2)" stroke-width="2"
       stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${px(ult.length - 1).toFixed(1)}" cy="${py(last.mcg).toFixed(1)}" r="3.2"
-      fill="${last.mcg > S.individuale_rosso ? 'var(--bad)' : 'var(--blu2)'}"/>
+      fill="${last.mcg > soglia ? 'var(--bad)' : 'var(--blu2)'}"/>
   </svg>`;
 }
 
@@ -186,7 +189,7 @@ function sezAndamento(perGen, note) {
       ${istogramma(perGen, { alt: 'Consumo giornaliero del contatore generale' })}
       <p class="hint" style="font-size:13px;color:var(--mut);margin:12px 0 0">
         Ogni barra è un periodo fra due letture. Le linee tratteggiate sono le soglie di
-        attenzione: ${n0(S.generale_giallo)} e ${n0(S.generale_rosso)} mc al giorno.</p>
+        attenzione: ${nSoglia(S.generale_giallo)} e ${nSoglia(S.generale_rosso)} mc al giorno.</p>
     </div>
     ${righe ? `<details style="margin-top:12px"><summary>Interventi e note</summary>
       <div class="inner"><ul style="margin:8px 0;padding-left:20px;color:var(--mut);font-size:14px">
@@ -201,13 +204,13 @@ function sezUtenti(d) {
     if (!per.length) return '';
     const p = per[per.length - 1];
     const ul = serie[serie.length - 1];
-    const cl = classeInd(p.mcg);
+    const cl = classeInd(p.mcg, u.id);
     return `<div class="user">
       <h3>${esc(u.nome)} <span class="tag ${cl}">${n2(p.mcg)} mc/g</span></h3>
       <div class="big">${n0(p.mc)} <small>mc nell'ultimo periodo</small></div>
       <div class="meta">${dataIT(p.dal)} → ${dataIT(p.al)} · ${p.giorni} giorni</div>
-      <div class="meta">lettura ${n0(ul.lettura)} del ${dataIT(ul.data)}</div>
-      ${spark(per)}
+      <div class="meta">lettura ${n0(ul.lettura)} del ${dataIT(ul.data)} · soglia ${nSoglia(S.individuale_rosso[u.id])} mc/g</div>
+      ${spark(per, S.individuale_rosso[u.id])}
     </div>`;
   }).join('');
 
@@ -216,7 +219,7 @@ function sezUtenti(d) {
     <div class="users">${cards}</div>
     <p style="font-size:13px;color:var(--mut);margin:10px 2px 0">
       Il grafico mostra gli ultimi periodi in mc al giorno; la linea tratteggiata è la soglia
-      di attenzione a ${n2(S.individuale_rosso)} mc al giorno.</p>
+      di attenzione di ciascuna utenza.</p>
   </section>`;
 }
 

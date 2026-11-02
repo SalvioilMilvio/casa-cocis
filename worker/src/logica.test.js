@@ -39,10 +39,10 @@ test('un salto enorme chiede conferma', () => {
 
 test('gli allarmi seguono le soglie del modello Excel', () => {
   const d = dati();
-  d.meta.soglie = { generale_giallo: 2, generale_rosso: 3, individuale_rosso: .7 };
-  assert.equal(allarme(d, 'generale', '2026-10-11', 2354, OGGI).livello, 'ok');
-  assert.equal(allarme(d, 'generale', '2026-10-11', 2364, OGGI).livello, 'warn');
-  assert.equal(allarme(d, 'generale', '2026-10-11', 2374, OGGI).livello, 'bad');
+  d.meta.soglie = { generale_giallo: 1.7, generale_rosso: 3, individuale_rosso: { u1: .7, u2: .5 } };
+  assert.equal(allarme(d, 'generale', '2026-10-11', 2356, OGGI).livello, 'ok');
+  assert.equal(allarme(d, 'generale', '2026-11-02', 2394, OGGI).livello, 'warn');
+  assert.equal(allarme(d, 'generale', '2026-10-11', 2369, OGGI).livello, 'bad');
   assert.equal(allarme(d, 'u1', '2026-10-13', 9770, OGGI).livello, 'ok');
   assert.equal(allarme(d, 'u1', '2026-10-13', 9772, OGGI).livello, 'bad');
 });

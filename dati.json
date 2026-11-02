@@ -5,9 +5,14 @@
   "aggiornato": "2026-11-02",
   "fornitore": "SMAT",
   "soglie": {
-   "generale_giallo": 2,
-   "generale_rosso": 3,
-   "individuale_rosso": 0.7
+   "generale_giallo": 1.7,
+   "generale_rosso": 3.0,
+   "individuale_rosso": {
+    "u1": 0.7,
+    "u2": 0.5,
+    "u3": 0.6,
+    "u4": 0.7
+   }
   },
   "note_dati": [
    "Il contatore generale e' stato sostituito nel 2024: le due serie non si sommano.",

@@ -45,7 +45,7 @@ export function controlla(dati, contatore, data, lettura, oggi) {
   return {};
 }
 
-/* Stesse soglie della formattazione condizionale del modello Excel. */
+/* Stesse regole della formattazione condizionale di AAA Acqua Contatore Castiglione 2026.xls. */
 export function allarme(dati, contatore, data, lettura) {
   const prima = serieDi(dati, contatore).filter(r => r.data < data).at(-1);
   if (!prima) return null;
@@ -53,8 +53,8 @@ export function allarme(dati, contatore, data, lettura) {
   const mcg = (lettura - prima.lettura) / gg;
   const s = dati.meta.soglie;
   const livello = contatore === 'generale'
-    ? (mcg > s.generale_rosso ? 'bad' : mcg > s.generale_giallo ? 'warn' : 'ok')
-    : (mcg > s.individuale_rosso ? 'bad' : 'ok');
+    ? (mcg >= s.generale_rosso ? 'bad' : mcg > s.generale_giallo ? 'warn' : 'ok')
+    : (mcg > s.individuale_rosso[contatore] ? 'bad' : 'ok');
   return { mcg: Math.round(mcg * 100) / 100, giorni: gg, livello };
 }
 

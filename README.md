@@ -27,8 +27,8 @@ le bollette cartacee.
 
 | Dove | Soglia |
 |---|---|
-| Contatore generale | oltre 2 mc/giorno giallo, oltre 3 rosso |
-| Singola utenza | oltre 0,7 mc/giorno rosso |
+| Contatore generale | fino a 1,7 mc/giorno verde, oltre 1,7 giallo, da 3 rosso |
+| Singola utenza | rosso oltre 0,7 mc/giorno (B., D.), 0,6 (Mt.), 0,5 (M.) |
 | Parte comune sul totale | oltre il 35% rosso |
 
 La parte comune (differenza fra contatore generale e somma degli individuali) viene
