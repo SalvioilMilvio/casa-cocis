@@ -2,11 +2,11 @@
  "meta": {
   "titolo": "Acqua — Condominio Cocis",
   "luogo": "Castiglione Torinese",
-  "aggiornato": "2026-11-01",
+  "aggiornato": "2026-11-02",
   "fornitore": "SMAT",
   "soglie": {
-   "generale_giallo": 2.0,
-   "generale_rosso": 3.0,
+   "generale_giallo": 2,
+   "generale_rosso": 3,
    "individuale_rosso": 0.7
   },
   "note_dati": [
@@ -325,6 +325,11 @@
   {
    "data": "2026-10-01",
    "lettura": 2339,
+   "contatore": "nuovo"
+  },
+  {
+   "data": "2026-11-02",
+   "lettura": 2394,
    "contatore": "nuovo"
   }
  ],
@@ -873,7 +878,7 @@
    "id": "2026-08",
    "foglio": "2026 08",
    "etichetta": "Agosto 2026",
-   "importo": 1181.0,
+   "importo": 1181,
    "mc": 385,
    "eur_mc": 3.068,
    "periodo": {
@@ -907,7 +912,7 @@
    "id": "2026-04",
    "foglio": "2026 04",
    "etichetta": "Aprile 2026",
-   "importo": 691.0,
+   "importo": 691,
    "mc": 208,
    "eur_mc": 3.322,
    "periodo": {
@@ -943,7 +948,7 @@
    "id": "2025",
    "foglio": "2025",
    "etichetta": "Gennaio 2026",
-   "importo": 736.0,
+   "importo": 736,
    "mc": 751,
    "eur_mc": 0.98,
    "periodo": {
@@ -978,7 +983,7 @@
    "id": "4-2024",
    "foglio": "4 2024",
    "etichetta": "Gennaio 2025",
-   "importo": 1606.0,
+   "importo": 1606,
    "mc": 153,
    "eur_mc": 10.497,
    "periodo": {
@@ -1013,7 +1018,7 @@
    "id": "3-2024",
    "foglio": "3 2024",
    "etichetta": "Ottobre 2024",
-   "importo": 573.0,
+   "importo": 573,
    "mc": 585,
    "eur_mc": 0.979,
    "periodo": {
@@ -1048,7 +1053,7 @@
    "id": "2-2024",
    "foglio": "2 2024 ",
    "etichetta": "Aprile 2024",
-   "importo": 883.0,
+   "importo": 883,
    "mc": 602,
    "eur_mc": 1.467,
    "periodo": {
@@ -1083,7 +1088,7 @@
    "id": "1-2024",
    "foglio": "1 2024",
    "etichetta": "Febbraio 2024",
-   "importo": 1576.0,
+   "importo": 1576,
    "mc": 1303,
    "eur_mc": 1.21,
    "periodo": {
@@ -1118,7 +1123,7 @@
    "id": "1-sem-23",
    "foglio": "1 sem 23",
    "etichetta": "Settembre 2022",
-   "importo": 1061.0,
+   "importo": 1061,
    "mc": 22,
    "eur_mc": 48.227,
    "periodo": {
@@ -1153,7 +1158,7 @@
    "id": "1-Q-22",
    "foglio": "1 Q 22",
    "etichetta": "Maggio 2022",
-   "importo": 612.0,
+   "importo": 612,
    "mc": 470,
    "eur_mc": 1.302,
    "periodo": {
