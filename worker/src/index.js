@@ -1,31 +1,11 @@
-/* Servizio delle letture: legge la foto del contatore e salva su dati.json.
-   Sta qui e non nella pagina perché le chiavi non possono stare su un sito pubblico.
-   Segreti: ANTHROPIC_API_KEY, GITHUB_TOKEN, TOKENS (JSON { "<token>": "u1" | "generale" | "*" }). */
+/* Servizio delle letture: salva su dati.json i numeri scritti a mano nella pagina.
+   Sta qui e non nella pagina perché la chiave non può stare su un sito pubblico.
+   Segreti: GITHUB_TOKEN, TOKENS (JSON { "<token>": "u1" | "generale" | "*" }). */
 
-import Anthropic from '@anthropic-ai/sdk';
 import { allarme, contatorePermesso, controlla, inserisci, nomeDi, serieDi } from './logica.js';
 
 const REPO = 'SalvioilMilvio/casa-cocis';
 const ORIGINE = 'https://salvioilmilvio.github.io';
-const FOTO_MAX = 7_000_000; // caratteri base64: la pagina rimpicciolisce prima di spedire
-
-/* Solo il contatore generale: i rotondi delle case si scrivono a mano. */
-const PROMPT = `Foto del contatore generale dell'acqua: display digitale blu WaterTech Sonata.
-Leggi la riga grande del display: 002.394,215 significa 2394 metri cubi.
-Rispondi con la sola parte intera, senza zeri iniziali e senza i decimali nel riquadro.
-Ignora la riga piccola della portata (m3/h), la matricola e il codice a barre.`;
-
-const SCHEMA = {
-  type: 'object',
-  properties: {
-    leggibile: { type: 'boolean' },
-    lettura: { type: 'integer' },
-    certezza: { type: 'string', enum: ['alta', 'media', 'bassa'] },
-    nota: { type: 'string' },
-  },
-  required: ['leggibile', 'lettura', 'certezza', 'nota'],
-  additionalProperties: false,
-};
 
 const cors = {
   'Access-Control-Allow-Origin': ORIGINE,
@@ -60,28 +40,6 @@ function base64(testo) {
   let s = '';
   for (let i = 0; i < byte.length; i += 8192) s += String.fromCharCode(...byte.subarray(i, i + 8192));
   return btoa(s);
-}
-
-async function leggiFoto(env, foto, tipo) {
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-  const msg = await client.beta.messages.create({
-    model: 'claude-opus-5-5',
-    max_tokens: 4000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    output_config: { effort: 'high', format: { type: 'json_schema', schema: SCHEMA } },
-    messages: [{
-      role: 'user',
-      content: [
-        { type: 'image', source: { type: 'base64', media_type: tipo, data: foto } },
-        { type: 'text', text: `${PROMPT}
-Se non riesci a leggere tutte le cifre metti leggibile a false e lettura a 0: non tirare a indovinare.
-In nota spiega in una frase breve, in italiano, cosa ti ha reso incerto.` },
-      ],
-    }],
-  });
-  if (msg.stop_reason !== 'end_turn') throw new Error(`Risposta incompleta: ${msg.stop_reason}`);
-  return JSON.parse(msg.content.find(b => b.type === 'text').text);
 }
 
 async function salva(env, contatore, data, lettura, conferma, oggi) {
@@ -128,16 +86,11 @@ export default {
             ? [{ id: 'generale', nome: 'Contatore generale' }, ...dati.utenti] : null,
         });
       }
-      if (azione === '/leggi') {
-        if (contatore !== 'generale') return risposta({ errore: 'La foto vale solo per il contatore generale.' }, 422);
-        if (typeof c.foto !== 'string' || c.foto.length > FOTO_MAX) return risposta({ errore: 'Foto mancante o troppo grande.' }, 413);
-        return risposta(await leggiFoto(env, c.foto, 'image/jpeg'));
-      }
       if (azione === '/salva') return await salva(env, contatore, c.data, c.lettura, c.conferma === true, oggi);
       return risposta({ errore: 'Indirizzo sconosciuto.' }, 404);
     } catch (e) {
       console.error(e);
-      return risposta({ errore: 'Il servizio ha avuto un problema: riprova o scrivi il numero a mano.' }, 502);
+      return risposta({ errore: 'Il servizio ha avuto un problema: riprova.' }, 502);
     }
   },
 };

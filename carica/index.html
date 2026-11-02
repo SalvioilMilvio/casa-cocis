@@ -19,7 +19,6 @@
 .bott{display:block; width:100%; text-align:center; font:inherit; font-weight:600; padding:13px; margin-top:14px;
   border:0; border-radius:10px; background:var(--blu2); color:#fff; cursor:pointer}
 .bott:disabled{opacity:.5}
-.foto-prev{width:100%; border-radius:10px; margin-top:12px}
 .msg{padding:10px 12px; border-radius:10px; font-size:15px; margin-top:12px}
 .msg.ok{background:var(--okbg); color:var(--ok)}
 .msg.warn{background:var(--warnbg); color:var(--warn)}
@@ -37,10 +36,6 @@
       <label for="contatore">Contatore</label>
       <select id="contatore"></select>
     </div>
-
-    <label class="bott" id="bott-foto" for="foto" hidden>📷 Fotografa il contatore</label>
-    <input id="foto" type="file" accept="image/*" capture="environment" hidden>
-    <img id="prev" class="foto-prev" alt="Foto del contatore" hidden>
 
     <label for="lettura">Metri cubi (solo numeri interi)</label>
     <input id="lettura" type="number" inputmode="numeric" min="0" step="1">
@@ -77,16 +72,13 @@ async function chiama(azione, corpo) {
 
 function blocca(testo) {
   avvisa(testo, 'bad');
-  for (const id of ['foto', 'lettura', 'data', 'salva']) $(id).disabled = true;
+  for (const id of ['lettura', 'data', 'salva']) $(id).disabled = true;
 }
 
 async function chi() {
   const c = await chiama('/chi', {});
   contatore = c.contatore;
   $('titolo').textContent = c.nome;
-  // Solo il generale ha il display leggibile: i rotondi si scrivono a mano.
-  $('bott-foto').hidden = contatore !== 'generale';
-  if (contatore !== 'generale') $('prev').hidden = true;
   const u = c.ultima;
   $('ultima').textContent = u ? `Ultima lettura: ${u.lettura} mc del ${u.data.split('-').reverse().join('/')}` : '';
   if (c.tutti) {
@@ -98,47 +90,10 @@ async function chi() {
   }
 }
 
-/* Rimpicciolisce sul telefono: le foto originali pesano troppo per il servizio. */
-function jpeg(file) {
-  return new Promise((ok, no) => {
-    const img = new Image();
-    img.onload = () => {
-      const k = Math.min(1, 1600 / Math.max(img.width, img.height));
-      const c = document.createElement('canvas');
-      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(img.src);
-      ok(c.toDataURL('image/jpeg', .88));
-    };
-    img.onerror = no;
-    img.src = URL.createObjectURL(file);
-  });
-}
-
 $('contatore').addEventListener('change', async e => {
   contatore = e.target.value;
   avvisa('');
   await chi().catch(err => avvisa(err.message, 'bad'));
-});
-
-$('foto').addEventListener('change', async e => {
-  const f = e.target.files[0];
-  if (!f) return;
-  avvisa('Sto leggendo la foto…', 'warn');
-  $('salva').disabled = true;
-  try {
-    const url = await jpeg(f);
-    $('prev').src = url; $('prev').hidden = false;
-    const r = await chiama('/leggi', { foto: url.split(',')[1] });
-    if (!r.leggibile) { avvisa('Non riesco a leggerla: ' + r.nota + ' Rifai la foto o scrivi il numero.', 'warn'); return; }
-    $('lettura').value = r.lettura;
-    avvisa(`Ho letto ${r.lettura}. Confronta con il contatore, correggi se serve e salva.` +
-      (r.certezza === 'alta' ? '' : ' ' + r.nota), r.certezza === 'alta' ? 'ok' : 'warn');
-  } catch (err) {
-    avvisa(err.message + ' Puoi scrivere il numero a mano.', 'bad');
-  } finally {
-    $('salva').disabled = false;
-  }
 });
 
 $('lettura').addEventListener('input', () => { conferma = false; });

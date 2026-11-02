@@ -6,9 +6,6 @@
     "test": "node --test src/",
     "deploy": "wrangler deploy"
   },
-  "dependencies": {
-    "@anthropic-ai/sdk": "latest"
-  },
   "devDependencies": {
     "wrangler": "latest"
   }
