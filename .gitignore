@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .DS_Store
 estrai.py
+node_modules/
+.dev.vars
+.wrangler/

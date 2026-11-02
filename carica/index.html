@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d5c">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Lettura contatore</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="stylesheet" href="../style.css">
+<style>
+.carica{max-width:480px; margin:20px auto; display:grid; gap:14px}
+.scheda{background:var(--card); border-radius:var(--r); box-shadow:var(--sh); padding:18px}
+.scheda h2{font-size:19px; margin-bottom:6px}
+.scheda label{display:block; font-size:14px; color:var(--mut); margin:12px 0 4px}
+.scheda input,.scheda select{width:100%; font:inherit; font-size:18px; padding:10px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px}
+.bott{display:block; width:100%; text-align:center; font:inherit; font-weight:600; padding:13px; margin-top:14px;
+  border:0; border-radius:10px; background:var(--blu2); color:#fff; cursor:pointer}
+.bott:disabled{opacity:.5}
+.foto-prev{width:100%; border-radius:10px; margin-top:12px}
+.msg{padding:10px 12px; border-radius:10px; font-size:15px; margin-top:12px}
+.msg.ok{background:var(--okbg); color:var(--ok)}
+.msg.warn{background:var(--warnbg); color:var(--warn)}
+.msg.bad{background:var(--badbg); color:var(--bad)}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main class="wrap carica">
+  <section class="scheda" id="scheda">
+    <h2 id="titolo">Lettura contatore</h2>
+    <p id="ultima" style="margin:0;color:var(--mut)"></p>
+
+    <div id="scelta" hidden>
+      <label for="contatore">Contatore</label>
+      <select id="contatore"></select>
+    </div>
+
+    <label class="bott" for="foto">📷 Fotografa il contatore</label>
+    <input id="foto" type="file" accept="image/*" capture="environment" hidden>
+    <img id="prev" class="foto-prev" alt="Foto del contatore" hidden>
+
+    <label for="lettura">Metri cubi (solo numeri interi)</label>
+    <input id="lettura" type="number" inputmode="numeric" min="0" step="1">
+    <label for="data">Data della lettura</label>
+    <input id="data" type="date">
+
+    <button class="bott" id="salva">Salva la lettura</button>
+    <div id="msg" class="msg" hidden></div>
+  </section>
+</main>
+
+<script>
+/* Si riempie dopo la pubblicazione del servizio. */
+const SERVIZIO = '';
+const token = new URLSearchParams(location.hash.slice(1)).get('t') || '';
+const $ = id => document.getElementById(id);
+let contatore = null, conferma = false;
+
+function avvisa(testo, tipo) {
+  $('msg').hidden = !testo;
+  $('msg').textContent = testo || '';
+  $('msg').className = 'msg ' + (tipo || 'ok');
+}
+
+async function chiama(azione, corpo) {
+  const r = await fetch(SERVIZIO + azione, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token, contatore, ...corpo }),
+  });
+  const j = await r.json();
+  if (j.errore) throw new Error(j.errore);
+  return j;
+}
+
+function blocca(testo) {
+  avvisa(testo, 'bad');
+  for (const id of ['foto', 'lettura', 'data', 'salva']) $(id).disabled = true;
+}
+
+async function chi() {
+  const c = await chiama('/chi', {});
+  contatore = c.contatore;
+  $('titolo').textContent = c.nome;
+  const u = c.ultima;
+  $('ultima').textContent = u ? `Ultima lettura: ${u.lettura} mc del ${u.data.split('-').reverse().join('/')}` : '';
+  if (c.tutti) {
+    $('scelta').hidden = false;
+    if (!$('contatore').options.length) {
+      $('contatore').innerHTML = c.tutti.map(x => `<option value="${x.id}">${x.nome}</option>`).join('');
+    }
+    $('contatore').value = contatore;
+  }
+}
+
+/* Rimpicciolisce sul telefono: le foto originali pesano troppo per il servizio. */
+function jpeg(file) {
+  return new Promise((ok, no) => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src);
+      ok(c.toDataURL('image/jpeg', .88));
+    };
+    img.onerror = no;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+$('contatore').addEventListener('change', async e => {
+  contatore = e.target.value;
+  avvisa('');
+  await chi().catch(err => avvisa(err.message, 'bad'));
+});
+
+$('foto').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  avvisa('Sto leggendo la foto…', 'warn');
+  $('salva').disabled = true;
+  try {
+    const url = await jpeg(f);
+    $('prev').src = url; $('prev').hidden = false;
+    const r = await chiama('/leggi', { foto: url.split(',')[1] });
+    if (!r.leggibile) { avvisa('Non riesco a leggerla: ' + r.nota + ' Rifai la foto o scrivi il numero.', 'warn'); return; }
+    $('lettura').value = r.lettura;
+    avvisa(`Ho letto ${r.lettura}. Confronta con il contatore, correggi se serve e salva.` +
+      (r.certezza === 'alta' ? '' : ' ' + r.nota), r.certezza === 'alta' ? 'ok' : 'warn');
+  } catch (err) {
+    avvisa(err.message + ' Puoi scrivere il numero a mano.', 'bad');
+  } finally {
+    $('salva').disabled = false;
+  }
+});
+
+$('lettura').addEventListener('input', () => { conferma = false; });
+
+$('salva').addEventListener('click', async () => {
+  const lettura = Number($('lettura').value);
+  if (!$('lettura').value || !Number.isInteger(lettura)) { avvisa('Scrivi i metri cubi, senza decimali.', 'warn'); return; }
+  $('salva').disabled = true;
+  try {
+    const r = await chiama('/salva', { data: $('data').value, lettura, conferma });
+    if (r.avviso) {
+      conferma = true;
+      avvisa(r.avviso + ' Se è giusto, premi di nuovo Salva.', 'warn');
+    } else {
+      conferma = false;
+      avvisa('Salvata. Grazie! La dashboard si aggiorna in un paio di minuti.', 'ok');
+      await chi();
+    }
+  } catch (err) {
+    avvisa(err.message, 'bad');
+  } finally {
+    $('salva').disabled = false;
+  }
+});
+
+$('data').value = new Date().toLocaleDateString('sv');
+$('data').max = $('data').value;
+if (!SERVIZIO) blocca('Il servizio di caricamento non è ancora attivo.');
+else if (!token) blocca('Apri questa pagina dal tuo link personale.');
+else chi().catch(err => blocca(err.message));
+</script>
+</body>
+</html>
