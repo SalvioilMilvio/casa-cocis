@@ -34,3 +34,29 @@ le bollette cartacee.
 La parte comune (differenza fra contatore generale e somma degli individuali) viene
 calcolata **solo fra due date in cui tutti e quattro i contatori sono stati letti**.
 Confrontare periodi di lunghezza diversa darebbe un numero privo di significato.
+
+## Pagina privata con password
+
+`privata/` è la stessa pagina dell'acqua, ma con i cognomi dei condomini al posto
+delle iniziali, protetta da una password.
+
+I cognomi stanno cifrati in `privata/nomi.cifrati.json` (AES-256-GCM, chiave da
+PBKDF2-SHA256 con 310.000 iterazioni). La password non viene confrontata con niente:
+serve a decifrare quel file, quindi senza non c'è niente da leggere e niente da
+aggirare lato pagina.
+
+I consumi invece arrivano da `dati.json`, lo stesso file della pagina pubblica, che
+il servizio delle letture aggiorna a ogni inserimento. Così non esiste una seconda
+copia dei dati da tenere allineata: la pagina privata è aggiornata quanto l'altra.
+
+Per generare o cambiare la password:
+
+```
+node cifra-nomi.mjs "nuova password"
+```
+
+Riscrive `privata/nomi.cifrati.json` e `PASSWORD.txt`. Lo script e il file della
+password restano fuori da git. Dopo, va ripubblicato il sito.
+
+Serve un indirizzo https: le funzioni di cifratura del browser non sono disponibili
+su un file aperto dal telefono.

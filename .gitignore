@@ -7,3 +7,5 @@ node_modules/
 .wrangler/
 .tokens.json
 link-personali.txt
+cifra-nomi.mjs
+PASSWORD.txt
