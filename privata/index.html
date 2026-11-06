@@ -159,12 +159,18 @@ document.getElementById('esci').addEventListener('click', () => {
   location.replace(location.pathname);
 });
 
-/* Apertura automatica: password nel link (#p=...) o già salvata sul telefono. */
+/* Apertura automatica: password nel link (#p=...) o già salvata sul telefono.
+   Il link può portare anche il token personale (#t=...): lo mettiamo da parte
+   qui, così il bottone "Inserimento dati" funziona senza aprire un altro link. */
 (function () {
-  const dalLink = new URLSearchParams(location.hash.slice(1)).get('p');
-  if (dalLink) {
-    history.replaceState(null, '', location.pathname);   // via dalla barra degli indirizzi
-    prova(dalLink, true);
+  const dalLink = new URLSearchParams(location.hash.slice(1));
+  const token = dalLink.get('t');
+  if (token) { try { localStorage.setItem('cocis-token', token); } catch { /* finestra privata */ } }
+
+  const password = dalLink.get('p');
+  if (password || token) history.replaceState(null, '', location.pathname);   // via dalla barra degli indirizzi
+  if (password) {
+    prova(password, true);
     return;
   }
   let salvata = null;

@@ -2,7 +2,7 @@
  "name": "Acqua Cocis",
  "short_name": "Acqua",
  "start_url": "./",
- "scope": "./",
+ "scope": "../",
  "display": "standalone",
  "background_color": "#0b3d5c",
  "theme_color": "#0b3d5c",
