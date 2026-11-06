@@ -12,12 +12,22 @@ export function nomeDi(dati, contatore) {
   return dati.utenti.find(u => u.id === contatore)?.nome ?? null;
 }
 
-/* Il token vale per un solo contatore, oppure per tutti con "*". */
-export function contatorePermesso(tokens, token, chiesto) {
+/* Il token vale per un contatore, per un elenco di contatori, o per tutti con "*".
+   Ognuno ha il suo piu' il generale: il contatore comune lo legge chi passa di li'. */
+export function contatoriDi(tokens, token, utenti = []) {
   const quale = Object.hasOwn(tokens, token) ? tokens[token] : null;
-  if (!quale) return null;
-  if (quale === '*') return chiesto || 'generale';
-  return !chiesto || chiesto === quale ? quale : null;
+  if (!quale) return [];
+  if (quale === '*') return ['generale', ...utenti.map(u => u.id)];
+  return Array.isArray(quale) ? quale.filter(Boolean) : [quale];
+}
+
+export function contatorePermesso(tokens, token, chiesto) {
+  if (!Object.hasOwn(tokens, token)) return null;
+  if (tokens[token] === '*') return chiesto || 'generale';
+  const ammessi = contatoriDi(tokens, token);
+  if (!ammessi.length) return null;
+  if (!chiesto) return ammessi[0];
+  return ammessi.includes(chiesto) ? chiesto : null;
 }
 
 /* Controlla una lettura. `errore` la blocca, `avviso` chiede una conferma in più. */

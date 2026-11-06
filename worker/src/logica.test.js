@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { allarme, contatorePermesso, controlla, inserisci } from './logica.js';
+import { allarme, contatorePermesso, contatoriDi, controlla, inserisci } from './logica.js';
 
 const dati = () => ({
   meta: { aggiornato: '2026-10-03' },
@@ -18,6 +18,20 @@ test('il token vale solo per il suo contatore', () => {
   assert.equal(contatorePermesso(t, 'b'), null);
   assert.equal(contatorePermesso(t, 'constructor'), null);
   assert.equal(contatorePermesso(t, 'z', 'u2'), 'u2');
+});
+
+test('ognuno ha il suo contatore piu\' il generale', () => {
+  const t = { a: ['u1', 'generale'], solo: 'generale', z: '*' };
+  const utenti = [{ id: 'u1', nome: 'B.' }, { id: 'u2', nome: 'M.' }];
+  assert.equal(contatorePermesso(t, 'a'), 'u1');                    // di suo apre il proprio
+  assert.equal(contatorePermesso(t, 'a', 'generale'), 'generale');  // ma il generale lo puo' leggere
+  assert.equal(contatorePermesso(t, 'a', 'u2'), null);              // quello del vicino no
+  assert.equal(contatorePermesso(t, 'solo', 'u1'), null);
+  assert.deepEqual(contatoriDi(t, 'a', utenti), ['u1', 'generale']);
+  assert.deepEqual(contatoriDi(t, 'solo', utenti), ['generale']);
+  assert.deepEqual(contatoriDi(t, 'z', utenti), ['generale', 'u1', 'u2']);
+  assert.deepEqual(contatoriDi(t, 'sconosciuto', utenti), []);
+  assert.deepEqual(contatoriDi(t, 'constructor', utenti), []);
 });
 
 test('una lettura normale passa', () => {

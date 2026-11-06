@@ -8,10 +8,11 @@
      - i link personali (token) servono a inserire una lettura;
      - la password serve a leggere la pagina.
 
-   Segreti: GITHUB_TOKEN, TOKENS (JSON { "<token>": "u1" | "generale" | "*" }),
+   Segreti: GITHUB_TOKEN, TOKENS (JSON { "<token>": "generale" | ["u1","generale"] | "*" };
+            con un elenco, il primo e' quello che si apre per primo),
             CHIAVE (32 byte in base64), PASSWORD. */
 
-import { allarme, contatorePermesso, controlla, inserisci, nomeDi, serieDi } from './logica.js';
+import { allarme, contatorePermesso, contatoriDi, controlla, inserisci, nomeDi, serieDi } from './logica.js';
 
 const REPO = 'SalvioilMilvio/casa-cocis';
 const FILE = 'dati.cifrati.json';
@@ -125,16 +126,18 @@ export default {
         return risposta({ dati });
       }
 
-      // I link personali: un contatore a testa, per inserire le letture.
-      const contatore = contatorePermesso(JSON.parse(env.TOKENS), String(c.token ?? ''), c.contatore);
+      // I link personali: il proprio contatore piu' il generale, che legge chi passa.
+      const tokens = JSON.parse(env.TOKENS);
+      const token = String(c.token ?? '');
+      const contatore = contatorePermesso(tokens, token, c.contatore);
       if (!contatore) return risposta({ errore: 'Link non valido.' }, 403);
 
       if (azione === '/chi') {
         const { dati } = await leggiDati(env);
+        const ammessi = contatoriDi(tokens, token, dati.utenti);
         return risposta({
           contatore, nome: nomeDi(dati, contatore), ultima: serieDi(dati, contatore).at(-1),
-          tutti: JSON.parse(env.TOKENS)[c.token] === '*'
-            ? [{ id: 'generale', nome: 'Contatore generale' }, ...dati.utenti] : null,
+          tutti: ammessi.length > 1 ? ammessi.map(id => ({ id, nome: nomeDi(dati, id) })) : null,
         });
       }
       if (azione === '/salva') return await salva(env, contatore, c.data, c.lettura, c.conferma === true, oggi);
