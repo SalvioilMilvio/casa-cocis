@@ -1,10 +1,20 @@
-/* Servizio delle letture: salva su dati.json i numeri scritti a mano nella pagina.
-   Sta qui e non nella pagina perché la chiave non può stare su un sito pubblico.
-   Segreti: GITHUB_TOKEN, TOKENS (JSON { "<token>": "u1" | "generale" | "*" }). */
+/* Servizio delle letture del condominio Cocis.
+
+   Nel repository, che e' pubblico, i dati stanno solo cifrati (dati.cifrati.json).
+   La chiave vive qui fra i segreti: senza passare da questo servizio quel file
+   non dice niente, nemmeno i cognomi dei condomini.
+
+   Due modi di entrare, per due cose diverse:
+     - i link personali (token) servono a inserire una lettura;
+     - la password serve a leggere la pagina.
+
+   Segreti: GITHUB_TOKEN, TOKENS (JSON { "<token>": "u1" | "generale" | "*" }),
+            CHIAVE (32 byte in base64), PASSWORD. */
 
 import { allarme, contatorePermesso, controlla, inserisci, nomeDi, serieDi } from './logica.js';
 
 const REPO = 'SalvioilMilvio/casa-cocis';
+const FILE = 'dati.cifrati.json';
 const ORIGINE = 'https://salvioilmilvio.github.io';
 
 const cors = {
@@ -15,6 +25,14 @@ const cors = {
 const risposta = (corpo, stato = 200) => new Response(JSON.stringify(corpo), {
   status: stato, headers: { 'Content-Type': 'application/json', ...cors },
 });
+
+const daBase64 = s => Uint8Array.from(atob(String(s).replace(/\n/g, '')), c => c.charCodeAt(0));
+
+function aBase64(byte) {
+  let s = '';
+  for (let i = 0; i < byte.length; i += 8192) s += String.fromCharCode(...byte.subarray(i, i + 8192));
+  return btoa(s);
+}
 
 async function github(env, percorso, opzioni = {}) {
   return fetch(`https://api.github.com/repos/${REPO}/${percorso}`, {
@@ -27,19 +45,39 @@ async function github(env, percorso, opzioni = {}) {
   });
 }
 
+const chiaveDi = env => crypto.subtle.importKey(
+  'raw', daBase64(env.CHIAVE), 'AES-GCM', false, ['encrypt', 'decrypt']);
+
 async function leggiDati(env) {
-  const r = await github(env, 'contents/dati.json');
+  const r = await github(env, `contents/${FILE}`);
   if (!r.ok) throw new Error(`GitHub ${r.status}`);
   const f = await r.json();
-  const byte = Uint8Array.from(atob(f.content.replace(/\n/g, '')), c => c.charCodeAt(0));
-  return { dati: JSON.parse(new TextDecoder().decode(byte)), sha: f.sha };
+  const busta = JSON.parse(new TextDecoder().decode(daBase64(f.content)));
+  const chiaro = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: daBase64(busta.iv) }, await chiaveDi(env), daBase64(busta.dati));
+  return { dati: JSON.parse(new TextDecoder().decode(chiaro)), sha: f.sha };
 }
 
-function base64(testo) {
-  const byte = new TextEncoder().encode(testo);
-  let s = '';
-  for (let i = 0; i < byte.length; i += 8192) s += String.fromCharCode(...byte.subarray(i, i + 8192));
-  return btoa(s);
+async function cifra(env, dati) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const corpo = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv }, await chiaveDi(env), new TextEncoder().encode(JSON.stringify(dati)));
+  const busta = {
+    nota: 'AES-256-GCM. La chiave sta solo fra i segreti del servizio delle letture.',
+    iv: aBase64(iv),
+    dati: aBase64(new Uint8Array(corpo)),
+  };
+  return aBase64(new TextEncoder().encode(JSON.stringify(busta, null, 1) + '\n'));
+}
+
+/* Confronto a tempo costante: non deve far capire quante lettere sono giuste. */
+async function passwordGiusta(env, data) {
+  const digest = async t => new Uint8Array(
+    await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(t))));
+  const [a, b] = await Promise.all([digest(data), digest(env.PASSWORD ?? '')]);
+  let diverso = 0;
+  for (let i = 0; i < a.length; i++) diverso |= a[i] ^ b[i];
+  return diverso === 0;
 }
 
 async function salva(env, contatore, data, lettura, conferma, oggi) {
@@ -51,11 +89,11 @@ async function salva(env, contatore, data, lettura, conferma, oggi) {
 
     const stato = allarme(dati, contatore, data, lettura);
     inserisci(dati, contatore, data, lettura, oggi);
-    const r = await github(env, 'contents/dati.json', {
+    const r = await github(env, `contents/${FILE}`, {
       method: 'PUT',
       body: JSON.stringify({
         message: `Lettura ${contatore} del ${data}: ${lettura} mc`,
-        content: base64(JSON.stringify(dati, null, 1) + '\n'),
+        content: await cifra(env, dati),
         sha,
       }),
     });
@@ -72,12 +110,25 @@ export default {
 
     let c;
     try { c = await req.json(); } catch { return risposta({ errore: 'Richiesta non valida.' }, 400); }
-    const contatore = contatorePermesso(JSON.parse(env.TOKENS), String(c.token ?? ''), c.contatore);
-    if (!contatore) return risposta({ errore: 'Link non valido.' }, 403);
 
     const azione = new URL(req.url).pathname;
     const oggi = new Date().toISOString().slice(0, 10);
+
     try {
+      // La pagina: una password, tutti i dati.
+      if (azione === '/dati') {
+        if (!await passwordGiusta(env, c.password)) {
+          await new Promise(r => setTimeout(r, 400));   // scoraggia i tentativi a raffica
+          return risposta({ errore: 'Password sbagliata.' }, 403);
+        }
+        const { dati } = await leggiDati(env);
+        return risposta({ dati });
+      }
+
+      // I link personali: un contatore a testa, per inserire le letture.
+      const contatore = contatorePermesso(JSON.parse(env.TOKENS), String(c.token ?? ''), c.contatore);
+      if (!contatore) return risposta({ errore: 'Link non valido.' }, 403);
+
       if (azione === '/chi') {
         const { dati } = await leggiDati(env);
         return risposta({

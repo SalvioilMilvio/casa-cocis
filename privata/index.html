@@ -77,12 +77,13 @@
 </footer>
 
 <script>
-/* La password non viene confrontata con niente: serve a decifrare i cognomi.
-   Se è sbagliata la decifratura fallisce, e senza di essa la pagina non si apre.
-   I consumi arrivano da ../dati.json, che il servizio delle letture tiene
-   aggiornato: qui non c'è nessuna copia da rigenerare. */
+/* Qui dentro non ci sono numeri. I dati arrivano dal servizio delle letture,
+   che li tiene cifrati e li consegna solo a chi manda la password giusta.
+   Nel repository, che è pubblico, c'è soltanto il file cifrato. */
 
+const SERVIZIO = 'https://casa-cocis-letture.casa-cocis.workers.dev';
 const CHIAVE_LOCALE = 'cocis-acqua-pw';
+
 const porta = document.getElementById('porta');
 const errore = document.getElementById('errore');
 const entra = document.getElementById('entra');
@@ -94,43 +95,23 @@ function sbaglia(testo) {
   entra.textContent = 'Entra';
 }
 
-async function cognomi(password) {
-  const r = await fetch('nomi.cifrati.json', { cache: 'no-store' });
-  if (!r.ok) throw new Error('rete');
-  const c = await r.json();
-  const byte = s => Uint8Array.from(atob(s), x => x.charCodeAt(0));
-  const base = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
-  const chiave = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: byte(c.sale), iterations: c.iterazioni, hash: 'SHA-256' },
-    base, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
-  const chiaro = await crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv: byte(c.iv) }, chiave, byte(c.nomi));
-  return JSON.parse(new TextDecoder().decode(chiaro));
-}
-
-/* Rimette i cognomi al posto delle iniziali, anche dentro i messaggi di avviso. */
-function conNomi(dati, nomi) {
-  const coppie = dati.utenti
-    .map(u => [u.nome, nomi[u.id]])
-    .filter(([, cognome]) => cognome)
-    .sort((a, b) => b[0].length - a[0].length);   // "Mt." prima di "M."
-  dati.utenti.forEach(u => { if (nomi[u.id]) u.nome = nomi[u.id]; });
-  if (Array.isArray(dati.meta.avvisi)) {
-    dati.meta.avvisi = dati.meta.avvisi.map(a =>
-      coppie.reduce((t, [iniziale, cognome]) => t.split(iniziale + ':').join(cognome + ':'), a));
-  }
-  return dati;
+async function chiediDati(password) {
+  const r = await fetch(SERVIZIO + '/dati', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  const c = await r.json().catch(() => ({}));
+  if (r.status === 403) { const e = new Error('password'); e.password = true; throw e; }
+  if (!r.ok || !c.dati) throw new Error(c.errore || 'servizio');
+  return c.dati;
 }
 
 async function apri(password) {
-  const nomi = await cognomi(password);          // password sbagliata -> eccezione
-  const r = await fetch('../dati.json', { cache: 'no-store' });
-  if (!r.ok) throw new Error('dati ' + r.status);
-  const testo = JSON.stringify(conNomi(await r.json(), nomi));
+  const testo = JSON.stringify(await chiediDati(password));
 
-  // app.js chiede 'dati.json' accanto a sé: glielo serviamo già decifrato,
-  // così resta identico a quello della pagina pubblica e non va tenuto in due copie.
+  // app.js chiede 'dati.json' accanto a sé: glielo serviamo noi, così resta
+  // identico a com'era quando i dati stavano in chiaro nel repository.
   const rete = window.fetch.bind(window);
   window.fetch = (url, opt) => String(url) === 'dati.json'
     ? Promise.resolve(new Response(testo, { status: 200, headers: { 'Content-Type': 'application/json' } }))
@@ -161,9 +142,10 @@ async function prova(password, ricorda) {
     await apri(password);
     if (ricorda) { try { localStorage.setItem(CHIAVE_LOCALE, password); } catch { /* finestra privata */ } }
   } catch (e) {
-    if (e && (e.name === 'OperationError' || e instanceof DOMException)) sbaglia('Password sbagliata.');
-    else sbaglia('Non riesco a leggere i dati. Controlla la connessione e riprova.');
-    try { localStorage.removeItem(CHIAVE_LOCALE); } catch { /* ignora */ }
+    sbaglia(e && e.password
+      ? 'Password sbagliata.'
+      : 'Non riesco a contattare il servizio. Controlla la connessione e riprova.');
+    if (e && e.password) { try { localStorage.removeItem(CHIAVE_LOCALE); } catch { /* ignora */ } }
   }
 }
 
@@ -179,11 +161,6 @@ document.getElementById('esci').addEventListener('click', () => {
 
 /* Apertura automatica: password nel link (#p=...) o già salvata sul telefono. */
 (function () {
-  if (!window.isSecureContext || !crypto.subtle) {
-    porta.innerHTML = '<h2>Apri la pagina dal link https</h2><p>Per aprire questa pagina '
-      + 'serve un indirizzo che inizia per https: un file salvato sul telefono non funziona.</p>';
-    return;
-  }
   const dalLink = new URLSearchParams(location.hash.slice(1)).get('p');
   if (dalLink) {
     history.replaceState(null, '', location.pathname);   // via dalla barra degli indirizzi

@@ -1,7 +1,0 @@
-{
- "nota": "AES-256-GCM, chiave da PBKDF2-SHA256. Senza la password non si legge.",
- "iterazioni": 310000,
- "sale": "ovX3rEA1vSarBX30wCjyDA==",
- "iv": "mTrK4rY+3d0aU5M2",
- "nomi": "su1EjD1XRPBeBzEVA2WIsgdRobaq7wNeAhAcRaVNbRNHcSRLa3d2GXYMkF2+I+x4OztKcaR8jRPpZSBCH2roxkzpTZKkcJnQuLNqoG9O23Tk7g=="
-}
