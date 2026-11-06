@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="it"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fotovoltaico</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#b86e00">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icona.svg" type="image/svg+xml">
+<style>
+:root{
+  color-scheme: light;
+  --surface-1:#fcfcfb; --plane:#f9f9f7;
+  --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+  --autoc:#2a78d6; --rete:#008300; --spesa:#898781;
+  --good:#006300; --warn:#fab219; --crit:#d03b3b;
+  --field:#fff;
+}
+@media (prefers-color-scheme: dark){
+  :root:where(:not([data-theme="light"])){
+    color-scheme: dark;
+    --surface-1:#1a1a19; --plane:#0d0d0d;
+    --text-primary:#fff; --text-secondary:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --autoc:#3987e5; --rete:#008300; --spesa:#898781;
+    --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+    --field:#232322;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --surface-1:#1a1a19; --plane:#0d0d0d;
+  --text-primary:#fff; --text-secondary:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+  --autoc:#3987e5; --rete:#008300; --spesa:#898781;
+  --good:#0ca30c; --warn:#fab219; --crit:#d03b3b;
+  --field:#232322;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:32px 20px 64px;background:var(--plane);color:var(--text-primary);
+     font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto}
+h1{font-size:1.6rem;margin:0 0 4px;letter-spacing:-0.01em}
+.sub{color:var(--text-secondary);margin:0 0 28px;font-size:.95rem}
+h2{font-size:1.05rem;margin:0 0 2px;letter-spacing:-0.005em}
+.note{color:var(--text-secondary);font-size:.85rem;margin:0 0 18px}
+.card{background:var(--surface-1);border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:20px}
+
+.hero{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-end}
+.hero .big{font-size:3.1rem;line-height:1;font-weight:650;letter-spacing:-0.02em}
+.hero .lbl{color:var(--text-secondary);font-size:.88rem;margin-top:6px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:20px;flex:1}
+.tile .v{font-size:1.5rem;font-weight:600;line-height:1.15}
+.tile .l{color:var(--text-secondary);font-size:.82rem;margin-top:3px}
+
+.ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;background:var(--surface-1);
+     border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:20px}
+.ctl label{font-size:.88rem;color:var(--text-secondary)}
+.ctl input[type=range]{flex:1;min-width:190px;accent-color:var(--autoc)}
+.ctl .val{font-variant-numeric:tabular-nums;font-weight:600;min-width:96px}
+
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin:0 0 6px;font-size:.85rem;color:var(--text-secondary)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.chartbox{overflow-x:auto}
+svg{display:block;max-width:100%;height:auto}
+.gl{stroke:var(--grid);stroke-width:1}
+.bl{stroke:var(--baseline);stroke-width:1}
+.tick{fill:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.xlab{fill:var(--text-secondary);font-size:12.5px;font-weight:500}
+.dlab{fill:var(--text-primary);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.bar{cursor:pointer}
+.bar:hover{opacity:.82}
+
+.tblbox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+thead th{color:var(--text-secondary);font-weight:600;font-size:.79rem;text-transform:uppercase;letter-spacing:.04em}
+tbody tr:hover{background:color-mix(in srgb,var(--autoc) 7%,transparent)}
+tfoot td{font-weight:650;border-top:2px solid var(--baseline);border-bottom:none}
+.par{color:var(--muted);font-size:.78rem;font-weight:400}
+
+/* ── inserimento dati ── */
+.entry summary{cursor:pointer;font-size:1.05rem;font-weight:600;list-style:none;
+  display:flex;align-items:center;gap:10px;justify-content:space-between}
+.entry summary::-webkit-details-marker{display:none}
+.entry summary::before{content:"▸";color:var(--muted);font-size:.9em;transition:transform .15s}
+.entry[open] summary::before{transform:rotate(90deg)}
+.entry summary .ttl{flex:1}
+.bar-status{font-size:.8rem;font-weight:500;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.st-clean{color:var(--good);background:color-mix(in srgb,var(--good) 13%,transparent)}
+.st-dirty{color:var(--crit);background:color-mix(in srgb,var(--crit) 13%,transparent)}
+.entrybar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:18px 0 14px}
+select,input[type=number],input[type=text]{
+  font:inherit;font-size:.9rem;padding:7px 10px;border-radius:8px;
+  border:1px solid var(--border);background:var(--field);color:var(--text-primary)}
+input[type=number]{width:100%;text-align:right;font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{
+  -webkit-appearance:none;margin:0}
+input:focus{outline:2px solid var(--autoc);outline-offset:-1px}
+button{font:inherit;font-size:.9rem;font-weight:550;padding:9px 16px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--border);background:var(--field);color:var(--text-primary)}
+button:hover{background:color-mix(in srgb,var(--text-primary) 7%,var(--field))}
+button.primary{background:var(--autoc);border-color:var(--autoc);color:#fff}
+button.primary:hover{filter:brightness(1.08)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.etbl td,.etbl th{padding:5px 7px}
+.etbl td:first-child{width:74px;color:var(--text-secondary)}
+.etbl input{min-width:78px}
+.etbl tr.filled td:first-child{color:var(--text-primary);font-weight:500}
+.calc{color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums}
+.hint{font-size:.83rem;color:var(--text-secondary);margin:12px 0 0;padding:11px 14px;
+  background:color-mix(in srgb,var(--autoc) 7%,transparent);border-radius:8px}
+.hint.warn{background:color-mix(in srgb,var(--warn) 15%,transparent)}
+
+ul.f{margin:8px 0 0;padding-left:0;list-style:none}
+ul.f li{padding:11px 0 11px 26px;border-bottom:1px solid var(--border);position:relative;font-size:.9rem}
+ul.f li:last-child{border-bottom:none}
+ul.f li::before{content:"";position:absolute;left:4px;top:17px;width:8px;height:8px;border-radius:50%}
+li.bad::before{background:var(--crit)} li.mid::before{background:var(--warn)} li.ok::before{background:var(--good)}
+code{background:color-mix(in srgb,var(--text-primary) 8%,transparent);padding:1px 5px;border-radius:4px;font-size:.85em}
+.tip{position:fixed;pointer-events:none;background:var(--surface-1);border:1px solid var(--border);
+  border-radius:8px;padding:9px 12px;font-size:.82rem;box-shadow:0 6px 22px rgba(0,0,0,.16);
+  opacity:0;transition:opacity .1s;z-index:50;white-space:nowrap}
+.tip b{display:block;margin-bottom:4px;font-size:.86rem}
+.tip i{font-style:normal;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+
+<!-- ════════ I DATI ════════
+     Unica fonte dei numeri. Il pannello "Inserisci i dati" scrive qui dentro.
+     sol = prodotto dal solare · imm = immesso (venduto) in rete · rete = prelevato dalla rete
+     12 valori per anno, da gennaio a dicembre; null = mese non ancora rilevato. -->
+<script id="dati" type="application/json">
+{
+ "aggiornato": "2026-10-27",
+ "fissi": 265,
+ "prezzoPieno": 0.45,
+ "anni": [
+  {
+   "y": 2021,
+   "da": 4,
+   "sol": [
+    null,
+    null,
+    null,
+    null,
+    786,
+    1030,
+    1030,
+    1080,
+    798,
+    649,
+    334,
+    118
+   ],
+   "rete": [
+    null,
+    null,
+    null,
+    null,
+    233,
+    92,
+    122,
+    321,
+    277,
+    607,
+    979,
+    2140
+   ],
+   "imm": [
+    null,
+    null,
+    null,
+    null,
+    2,
+    190,
+    170,
+    136,
+    87,
+    77,
+    18,
+    1.7
+   ],
+   "speso": 3634,
+   "prezzo": 0,
+   "fonte": "n.d.",
+   "noSave": true
+  },
+  {
+   "y": 2022,
+   "sol": [
+    544,
+    599,
+    689,
+    773,
+    881,
+    1010,
+    1220,
+    1050,
+    776,
+    562,
+    442,
+    274
+   ],
+   "rete": [
+    1390,
+    603,
+    603,
+    402,
+    136,
+    162,
+    144,
+    258,
+    215,
+    203,
+    566,
+    1084
+   ],
+   "imm": [
+    40,
+    71,
+    138,
+    201,
+    178,
+    165,
+    161,
+    162,
+    126,
+    111,
+    37,
+    11
+   ],
+   "speso": 1325.62,
+   "prezzo": 0.198,
+   "fonte": "stimato"
+  },
+  {
+   "y": 2023,
+   "sol": [
+    359,
+    513,
+    749,
+    787,
+    776,
+    896,
+    1020,
+    952,
+    733,
+    524,
+    484,
+    384
+   ],
+   "rete": [
+    1040,
+    683,
+    358,
+    210,
+    234,
+    187,
+    215,
+    314,
+    176,
+    234,
+    421,
+    568
+   ],
+   "imm": [
+    25,
+    110,
+    204,
+    257,
+    177,
+    132,
+    102,
+    80,
+    152,
+    64,
+    67,
+    45
+   ],
+   "speso": 1132,
+   "prezzo": 0.172,
+   "fonte": "stimato"
+  },
+  {
+   "y": 2024,
+   "sol": [
+    384,
+    384,
+    489,
+    536,
+    616,
+    740,
+    944,
+    983,
+    588,
+    362,
+    444,
+    384
+   ],
+   "rete": [
+    568,
+    355,
+    391,
+    192,
+    157,
+    117,
+    159,
+    153,
+    250,
+    255,
+    310,
+    568
+   ],
+   "imm": [
+    45,
+    69,
+    109,
+    161,
+    175,
+    120,
+    130,
+    100,
+    82,
+    53,
+    47,
+    45
+   ],
+   "speso": 1657.37,
+   "prezzo": 0.266,
+   "fonte": "stimato"
+  },
+  {
+   "y": 2025,
+   "sol": [
+    303,
+    337,
+    554,
+    603,
+    806,
+    932,
+    957,
+    870,
+    619,
+    485,
+    371,
+    291
+   ],
+   "rete": [
+    806,
+    326,
+    275,
+    180,
+    143,
+    140,
+    136,
+    191,
+    225,
+    139,
+    396,
+    715
+   ],
+   "imm": [
+    30,
+    60,
+    145,
+    194,
+    162,
+    138,
+    154,
+    86,
+    90,
+    129,
+    67,
+    28
+   ],
+   "speso": 1200.51,
+   "prezzo": 0.253,
+   "fonte": "misurato"
+  },
+  {
+   "y": 2026,
+   "sol": [
+    307,
+    408,
+    520,
+    623,
+    758,
+    936,
+    953,
+    813,
+    714,
+    null,
+    null,
+    null
+   ],
+   "rete": [
+    730,
+    302,
+    269,
+    108,
+    152,
+    103,
+    159,
+    225,
+    219,
+    null,
+    null,
+    null
+   ],
+   "imm": [
+    34,
+    95,
+    149,
+    206,
+    171,
+    145,
+    105,
+    73,
+    78,
+    null,
+    null,
+    null
+   ],
+   "speso": 742.91,
+   "prezzo": 0.257,
+   "fonte": "misurato",
+   "prov": true,
+   "bollette": [
+    {
+     "da": 2,
+     "a": 3,
+     "kwh": 568,
+     "eur": 225.9,
+     "file": "2026_02 edison.pdf"
+    },
+    {
+     "da": 4,
+     "a": 5,
+     "kwh": 252,
+     "eur": 132.17,
+     "file": "2026_03 edison apr mag 132.pdf"
+    },
+    {
+     "da": 6,
+     "a": 7,
+     "kwh": 297,
+     "eur": 140.83,
+     "file": "2026_03 edison giu lugl.pdf"
+    },
+    {
+     "da": 8,
+     "a": 9,
+     "kwh": 640,
+     "eur": 244.01,
+     "file": "2026_04 edison ago sett.pdf"
+    }
+   ]
+  }
+ ]
+}
+</script>
+
+<div class="wrap">
+
+<h1>Fotovoltaico Castiglione — bilancio 2021‑2026</h1>
+<p class="sub">Impianto in esercizio da <strong>maggio 2021</strong>. Consumi dal contatore, importi dalle bollette Edison.
+Ultimo aggiornamento: <span id="upd">27 ottobre 2026</span>.</p>
+
+<div class="card">
+  <div class="hero">
+    <div>
+      <div class="big" id="heroSave">€ 6.910,63</div>
+      <div class="lbl">risparmio stimato dal 2021</div>
+      <div class="lbl" style="margin-top:8px">Senza impianto avresti pagato <strong id="heroSenza">€ 16.603,04</strong> · ne hai pagati <strong id="heroSpeso">€ 9.692,41</strong></div>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="v" id="tAuto">35.863</div><div class="l">kWh autoconsumati</div></div>
+      <div class="tile"><div class="v" id="tProd">42.836</div><div class="l">kWh prodotti</div></div>
+      <div class="tile"><div class="v" id="tQuota">59 %</div><div class="l">consumo coperto dal FV</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── pannello inserimento ── -->
+<details class="card entry" id="entry">
+  <summary>
+    <span class="ttl">Inserisci i dati</span>
+    <span class="bar-status st-dirty" id="status">modifiche non salvate nel file</span>
+  </summary>
+
+  <div class="entrybar">
+    <label for="yearSel" style="color:var(--text-secondary);font-size:.88rem">Anno</label>
+    <select id="yearSel"></select>
+    <button id="addYear">+ Nuovo anno</button>
+    <label for="spesaIn" style="color:var(--text-secondary);font-size:.88rem;margin-left:8px">Speso in bolletta €</label>
+    <input type="number" id="spesaIn" step="0.01" style="width:120px">
+    <label for="prezzoIn" style="color:var(--text-secondary);font-size:.88rem;margin-left:8px">Tariffa variabile €/kWh</label>
+    <input type="number" id="prezzoIn" step="0.001" style="width:100px">
+    <span class="bar-status st-clean" id="fonteTag" title="Ricavato dalle voci della bolletta: energia + rete/oneri + accisa, più IVA.">da bolletta</span>
+    <span style="flex:1"></span>
+    <button class="primary" id="saveBtn">Salva nel file</button>
+  </div>
+  <div class="entrybar" style="margin-top:0">
+    <label for="prezzoPienoIn" style="color:var(--text-secondary);font-size:.88rem">Prezzo del risparmio, uguale per tutti gli anni €/kWh</label>
+    <input type="number" id="prezzoPienoIn" step="0.01" style="width:100px">
+    <span class="par">è il prezzo usato per risparmio e senza impianto</span>
+  </div>
+
+  <div class="tblbox">
+  <table class="etbl">
+    <thead><tr>
+      <th>Mese</th>
+      <th style="text-align:right">Prodotto solare</th>
+      <th style="text-align:right">Immesso in rete</th>
+      <th style="text-align:right">Prelevato da rete</th>
+      <th style="text-align:right">Autoconsumo</th>
+      <th style="text-align:right">Consumo reale</th>
+    </tr></thead>
+    <tbody id="entryBody"></tbody>
+  </table>
+  </div>
+
+  <p class="hint warn" id="saveHint">Le modifiche sono per ora solo nel browser. Premi <strong>Salva nel file</strong> per scriverle dentro l'HTML, altrimenti si perdono svuotando i dati del browser.</p>
+</details>
+
+<div class="card">
+  <h2>Come si calcola il risparmio</h2>
+  <p class="note">Ogni kWh autoconsumato è un kWh che non compri, e il risparmio lo calcola a <strong>0,45 €/kWh</strong>, uguale per tutti gli anni. La tabella qui sotto mostra, solo per confronto, la tariffa variabile dell'ultima bolletta.</p>
+  <div class="tblbox">
+  <table>
+    <thead><tr><th>Voce della bolletta</th><th>€/kWh</th><th>Si evita?</th></tr></thead>
+    <tbody>
+      <tr><td>Vendita energia</td><td>0,162813</td><td>sì</td></tr>
+      <tr><td>Rete e oneri di sistema — quota variabile</td><td>0,047891</td><td>sì</td></tr>
+      <tr><td>Accisa erariale di consumo</td><td>0,022700</td><td>sì</td></tr>
+      <tr><td style="color:var(--text-secondary)">Somma imponibile</td><td>0,233404</td><td></td></tr>
+      <tr><td><strong>Totale con IVA 10%</strong></td><td><strong>0,256744</strong></td><td></td></tr>
+      <tr><td class="par">Quota fissa, quota potenza, oneri fissi (~265 €/anno)</td><td class="par">—</td><td class="par">no</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="hint">
+    Valori dalla bolletta <strong>agosto‑settembre 2026</strong> (offerta Edison Luce Prezzo Fisso12, da giugno).
+    Rete, oneri e accisa valgono <strong>0,0706 €/kWh</strong>, il <strong>30%</strong> del totale: si pagano su ogni kWh
+    <em>prelevato</em>, quindi l'autoconsumo li evita insieme all'energia. Le quote fisse no:
+    quelle si pagano comunque, con o senza pannelli, e restano fuori dal calcolo.
+  </p>
+  <p class="note" style="margin:14px 0 0">
+    La tariffa variabile <strong>cambia molto di anno in anno</strong>: la trovi nella tabella completa, con il
+    risparmio che darebbe, e nel pannello <em>Inserisci i dati</em>. Nel 2022‑2023 il governo aveva azzerato gli
+    oneri di sistema per i domestici: in quegli anni era molto più bassa.
+  </p>
+</div>
+
+<div class="card">
+  <h2>Da dove viene l'energia che consumi</h2>
+  <p class="note">Ogni barra è il consumo reale dell'anno, diviso tra ciò che hai autoprodotto e ciò che hai comprato.</p>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--autoc)"></i>Autoconsumo da fotovoltaico</span>
+    <span><i class="sw" style="background:var(--rete)"></i>Prelevato dalla rete</span>
+  </div>
+  <div class="chartbox"><svg id="c1" viewBox="0 0 940 380" role="img" aria-label="Consumo annuo diviso tra autoconsumo fotovoltaico e prelievo da rete"></svg></div>
+</div>
+
+<div class="card">
+  <h2>Bolletta reale, bolletta senza impianto e risparmio</h2>
+  <p class="note">Ogni barra è <strong>quanto avresti pagato senza fotovoltaico</strong> (il numero in cima).
+    Il grigio è quello che hai pagato davvero; il blu è la differenza che l'impianto ti ha risparmiato.</p>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--spesa)"></i>Bolletta pagata</span>
+    <span><i class="sw" style="background:var(--autoc)"></i>Risparmio (spesa evitata)</span>
+    <span>▏ totale = bolletta senza impianto</span>
+  </div>
+  <div class="chartbox"><svg id="c2" viewBox="0 0 940 380" role="img" aria-label="Spesa reale e risparmio stimato per anno"></svg></div>
+</div>
+
+<div class="card">
+  <h2>Bolletta per bimestre</h2>
+  <p class="note">Ogni riga è una bolletta Edison, messa a confronto con quello che la casa ha consumato davvero
+    negli stessi mesi. <strong>Senza impianto</strong> = bolletta pagata + i kWh presi dal solare a 0,45 €/kWh;
+    le quote fisse restano uguali con o senza pannelli e quindi non entrano nel risparmio.</p>
+  <div class="tblbox">
+  <table>
+    <thead><tr>
+      <th>Bimestre</th><th>Consumo casa</th><th>Dal solare</th><th>Dalla rete</th><th>Fatturati</th>
+      <th>Bolletta pagata €</th><th>Senza impianto €</th><th>Risparmio €</th>
+    </tr></thead>
+    <tbody id="bimBody"></tbody>
+    <tfoot id="bimFoot"></tfoot>
+  </table>
+  </div>
+  <p class="hint" id="bimHint"></p>
+</div>
+
+<div class="card">
+  <h2>Tabella completa</h2>
+  <p class="note">Tutti i valori in kWh salvo la spesa e il risparmio, in euro.</p>
+  <div class="tblbox">
+  <table>
+    <thead><tr>
+      <th>Anno</th><th>Consumo reale</th><th>Prodotto FV</th><th>Autoconsumo</th>
+      <th>Da rete</th><th>Immesso</th><th>% da FV</th><th>Tariffa variabile €/kWh</th>
+      <th>Speso €</th><th>Risparmio a <span id="hdrPieno">0,45</span> €</th><th>Risparmio a tariffa variabile €</th><th>Senza impianto €</th>
+    </tr></thead>
+    <tbody id="tbody"></tbody>
+    <tfoot id="tfoot"></tfoot>
+  </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Note sui dati</h2>
+  <p class="note">Cosa è solido e cosa no, per sapere quanto fidarsi di ogni riga.</p>
+  <ul class="f">
+    <li class="ok"><strong>I consumi mensili sono affidabili.</strong> Sono letture da contatore, non stime.
+      Tutto il resto si calcola da lì: <code>autoconsumo = prodotto − immesso</code> e
+      <code>consumo = autoconsumo + prelevato</code>, così i totali non possono contraddirsi.</li>
+    <li class="mid"><strong>2021 è un anno ibrido.</strong> L'impianto parte a maggio, ma la spesa di 3.634 €
+      copre tutto l'anno, quasi tutto pre‑fotovoltaico: per questo il 2021 non ha una riga di risparmio.
+      Il vecchio foglio riportava un consumo di 9.865 kWh, 49 in meno di quanto risulta dai mesi: qui vale la somma dei mesi.</li>
+    <li class="bad"><strong>Il 2025 nel vecchio foglio era sbagliato.</strong> Quattro righe bollette su sei erano copie
+      del 2024 — stesse date, stessi importi. Gli importi qui vengono riletti dai PDF: la bolletta di luglio 2025 da
+      <strong>1.121,22 €</strong> (conguaglio marzo‑luglio) mancava del tutto, e il rimborso di dicembre di
+      <strong>−427,34 €</strong> nemmeno c'era.</li>
+    <li class="mid"><strong>Edison fattura in ritardo rispetto al contatore.</strong> Nel 2024 ti ha addebitato
+      1.764 kWh in più del reale; il conguaglio di luglio 2025 e il rimborso di dicembre sono la coda di quello squilibrio.
+      Il 2026 è indietro all'opposto: a fine settembre 1.757 kWh fatturati contro 2.267 prelevati, quindi
+      <strong>un conguaglio è ancora in arrivo</strong> e la spesa 2026 è provvisoria.</li>
+    <li class="mid"><strong>Solo 2025 e 2026 hanno una tariffa variabile misurata.</strong> Per quegli anni le bollette
+      espongono le voci una per una e il tasso evitato si somma direttamente. Per il 2022‑2024 non ci sono
+      PDF con quel dettaglio: il prezzo è ricavato da <code>(speso − 265 € di quote fisse) / kWh fatturati</code>,
+      quindi è una stima, ed è marcata come tale. Se ritrovi quelle bollette i valori si possono correggere
+      nel pannello.</li>
+    <li class="mid"><strong>La vendita al GSE non è conteggiata.</strong> Hai immesso in rete oltre 6.500 kWh dal 2021,
+      che il GSE ti paga. Nei vecchi fogli c'erano solo voci "gse" sparse, troppo frammentarie per un totale:
+      il risparmio reale è quindi un po' più alto di quello mostrato qui.</li>
+    <li class="ok"><strong>Riferimento pre‑impianto:</strong> nel 2020, ultimo anno pieno senza pannelli, hai consumato
+      16.064 kWh per 2.891 €. Il consumo è poi sceso stabilmente sotto i 10.000 kWh: parte del calo in bolletta viene
+      da lì, non solo dal fotovoltaico.</li>
+  </ul>
+</div>
+
+<p class="note" style="text-align:center;margin-top:26px">
+  I kWh mensili si scrivono nel foglio <code>AAA 2026 enel consumi.xlsx</code> (righe 26‑28); gli importi si leggono
+  sempre dai PDF Edison, mai dal foglio. Il pulsante <em>Aggiorna fotovoltaico</em> riporta qui entrambi.
+</p>
+</div>
+
+<div class="tip" id="tip" style="opacity: 0; left: 336px; top: 146.055px;"></div>
+
+<script>
+"use strict";
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const ABBR=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+const LSKEY="fv-castiglione-bozza-v3";
+
+/* ── stato ── */
+const BAKED = JSON.parse(document.getElementById('dati').textContent);
+let ST = JSON.parse(JSON.stringify(BAKED));
+let dirty = false;
+try{
+  const draft = localStorage.getItem(LSKEY);
+  if(draft){ ST = JSON.parse(draft); dirty = JSON.stringify(ST)!==JSON.stringify(BAKED); }
+}catch(e){ /* localStorage non disponibile: si lavora solo in memoria */ }
+
+const nf0 = n => n.toLocaleString('it-IT',{maximumFractionDigits:0,useGrouping:'always'});
+const nf2 = n => n.toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:'always'});
+const eur = n => '€ ' + nf2(n);
+const sum = a => a.reduce((s,v)=>s+(v||0),0);
+
+/* mesi effettivamente rilevati: serve per l'etichetta "gen–mag" degli anni parziali */
+function copertura(a){
+  const idx=[]; for(let i=0;i<12;i++) if(a.sol[i]!=null||a.rete[i]!=null||a.imm[i]!=null) idx.push(i);
+  return idx;
+}
+/* aggregati derivati — mai scritti a mano, sempre ricalcolati */
+function derive(){
+  return ST.anni.map(a=>{
+    const idx=copertura(a);
+    const prod=sum(a.sol), imm=sum(a.imm), rete=sum(a.rete);
+    const auto=prod-imm, tot=auto+rete;
+    const parziale = idx.length>0 && idx.length<12;
+    return {y:a.y, prod, imm, rete, auto, tot,
+            speso:a.speso||0, prezzo:a.prezzo||0, fonte:a.fonte||'stimato',
+            noSave:!!a.noSave, prov:!!a.prov,
+            par: parziale ? `${ABBR[idx[0]]}–${ABBR[idx[idx.length-1]]}` : null,
+            vuoto: idx.length===0};
+  }).filter(d=>!d.vuoto);
+}
+
+const SVGNS="http://www.w3.org/2000/svg";
+const el=(t,a={})=>{const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const tip=document.getElementById('tip');
+function showTip(ev,html){
+  tip.innerHTML=html; tip.style.opacity=1;
+  const r=tip.getBoundingClientRect();
+  let x=ev.clientX+14, y=ev.clientY-r.height-10;
+  if(x+r.width>innerWidth-8) x=ev.clientX-r.width-14;
+  if(y<8) y=ev.clientY+18;
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+const hideTip=()=>tip.style.opacity=0;
+
+function ticks(max,n=5){
+  if(!(max>0)) return [0,1];
+  const raw=max/n, mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const step=[1,2,2.5,5,10].map(m=>m*mag).find(s=>s>=raw)||10*mag;
+  const out=[]; for(let v=0;v<=max*1.0001;v+=step) out.push(v);
+  if(out[out.length-1]<max) out.push(out[out.length-1]+step);
+  return out;
+}
+function roundedTop(x,y,w,h,r){
+  r=Math.min(r,h,w/2);
+  return r<=0?`M${x},${y}h${w}v${h}h${-w}z`
+    :`M${x},${y+r}a${r},${r} 0 0 1 ${r},${-r}h${w-2*r}a${r},${r} 0 0 1 ${r},${r}v${h-r}h${-w}z`;
+}
+function drawStacked(svgId,rows,series,fmt,tipRows,unit){
+  const svg=document.getElementById(svgId); svg.textContent='';
+  const W=940,H=380,mL=62,mR=18,mT=26,mB=54, pw=W-mL-mR, ph=H-mT-mB;
+  const max=Math.max(...rows.map(d=>series.reduce((s,se)=>s+(d[se.key]||0),0)));
+  const tk=ticks(max), top=tk[tk.length-1]||1;
+  const yOf=v=>mT+ph-(v/top)*ph;
+  tk.forEach(t=>{
+    svg.appendChild(el('line',{x1:mL,x2:mL+pw,y1:yOf(t),y2:yOf(t),class:t===0?'bl':'gl'}));
+    const lb=el('text',{x:mL-10,y:yOf(t)+4,'text-anchor':'end',class:'tick'});
+    lb.textContent=nf0(t); svg.appendChild(lb);
+  });
+  const bw=pw/rows.length, barW=Math.min(74,bw*0.56);
+  rows.forEach((d,i)=>{
+    const cx=mL+bw*i+bw/2, x=cx-barW/2;
+    let acc=0; const total=series.reduce((s,se)=>s+(d[se.key]||0),0);
+    series.forEach(se=>{
+      const v=d[se.key]||0; if(v<=0) return;
+      const y0=yOf(acc+v), y1=yOf(acc), h=Math.max(0,y1-y0-2);
+      if(h<=0){acc+=v;return;}
+      const isTop=Math.abs(acc+v-total)<1e-6;
+      const r=el('path',{fill:se.color,class:'bar',d:roundedTop(x,y0,barW,h,isTop?4:0)});
+      const rows2=tipRows(d).map(t=>`<i>${t[0]}</i> ${t[1]}`).join('<br>');
+      r.addEventListener('mousemove',e=>showTip(e,`<b>${d.y}${d.par?' · '+d.par:''}</b>${rows2}`));
+      r.addEventListener('mouseleave',hideTip);
+      svg.appendChild(r); acc+=v;
+    });
+    const tl=el('text',{x:cx,y:yOf(total)-8,'text-anchor':'middle',class:'dlab'});
+    tl.textContent=fmt(total); svg.appendChild(tl);
+    const xl=el('text',{x:cx,y:H-mB+22,'text-anchor':'middle',class:'xlab'});
+    xl.textContent=d.y; svg.appendChild(xl);
+    if(d.par){
+      const p=el('text',{x:cx,y:H-mB+38,'text-anchor':'middle',class:'tick'});
+      p.textContent=d.par; svg.appendChild(p);
+    }
+  });
+  const ua=el('text',{x:mL-10,y:mT-10,'text-anchor':'end',class:'tick'});
+  ua.textContent=unit; svg.appendChild(ua);
+}
+
+/* ── render ── */
+function render(){
+  document.getElementById('upd').textContent=
+    new Date(ST.aggiornato+'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+
+  const pieno=+ST.prezzoPieno||0;
+  document.getElementById('hdrPieno').textContent=pieno.toLocaleString('it-IT',{minimumFractionDigits:2});
+  const D=derive();
+  /* il risparmio si calcola a un prezzo unico per tutti gli anni, scelto da Silvio */
+  /* save = prezzo unico · save2 = tariffa variabile dell'anno, solo per confronto */
+  D.forEach(d=>{ d.save=d.noSave?0:d.auto*pieno; d.save2=d.noSave?0:d.auto*d.prezzo; });
+
+  const T=k=>D.reduce((s,d)=>s+d[k],0);
+  const totAuto=T('auto'), totProd=T('prod'), totTot=T('tot'), totSave=T('save'), totSave2=T('save2');
+  /* autoconsumo dei soli anni con un risparmio calcolato (il 2021 è escluso) */
+  const totAuto2=D.reduce((s,d)=>s+(d.noSave?0:d.auto),0);
+  document.getElementById('heroSave').textContent=eur(totSave);
+  document.getElementById('heroSenza').textContent=eur(T('speso')+totSave);
+  document.getElementById('heroSpeso').textContent=eur(T('speso'));
+  document.getElementById('tAuto').textContent=nf0(totAuto);
+  document.getElementById('tProd').textContent=nf0(totProd);
+  document.getElementById('tQuota').textContent=totTot?(totAuto/totTot*100).toFixed(0)+' %':'—';
+
+  drawStacked('c1',D,[{key:'auto',color:'var(--autoc)'},{key:'rete',color:'var(--rete)'}],nf0,
+    d=>[['consumo reale',nf0(d.tot)+' kWh'],
+        ['autoconsumo FV',nf0(d.auto)+' kWh ('+(d.tot?(d.auto/d.tot*100).toFixed(0):0)+'%)'],
+        ['da rete',nf0(d.rete)+' kWh'],
+        ['immesso in rete',nf0(d.imm)+' kWh']],'kWh');
+
+  drawStacked('c2',D,[{key:'speso',color:'var(--spesa)'},{key:'save',color:'var(--autoc)'}],nf0,
+    d=>[['speso in bolletta',eur(d.speso)+(d.prov?' (provvisorio)':'')],
+        ['risparmio stimato',d.noSave?'non calcolabile':eur(d.save)],
+        ['senza impianto',d.noSave?'—':eur(d.speso+d.save)]],'€');
+
+  const tb=document.getElementById('tbody'); tb.innerHTML='';
+  D.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.y}${d.par?` <span class="par">${d.par}</span>`:''}</td>
+      <td>${nf0(d.tot)}</td><td>${nf0(d.prod)}</td><td>${nf0(d.auto)}</td>
+      <td>${nf0(d.rete)}</td><td>${nf0(d.imm)}</td>
+      <td>${d.tot?(d.auto/d.tot*100).toFixed(0):0} %</td>
+      <td>${d.noSave?'<span class="par">—</span>'
+            :d.prezzo.toLocaleString('it-IT',{minimumFractionDigits:3})
+             +` <span class="par">${d.fonte==='misurato'?'mis.':'stim.'}</span>`}</td>
+      <td>${nf2(d.speso)}${d.prov?' <span class="par">prov.</span>':''}</td>
+      <td>${d.noSave?'<span class="par">n.d.</span>':nf2(d.save)}</td>
+      <td>${d.noSave?'<span class="par">n.d.</span>':nf2(d.save2)}</td>
+      <td>${d.noSave?'<span class="par">n.d.</span>':'<strong>'+nf2(d.speso+d.save)+'</strong>'}</td>`;
+    tb.appendChild(tr);
+  });
+  /* prezzo medio del totale: pesato sull'autoconsumo, non media aritmetica */
+  const pesato = totAuto2 ? totSave2/totAuto2 : 0;
+  document.getElementById('tfoot').innerHTML=
+    `<tr><td>Totale</td><td>${nf0(totTot)}</td><td>${nf0(totProd)}</td><td>${nf0(totAuto)}</td>
+     <td>${nf0(T('rete'))}</td><td>${nf0(T('imm'))}</td>
+     <td>${totTot?(totAuto/totTot*100).toFixed(0):0} %</td>
+     <td>${pesato.toLocaleString('it-IT',{minimumFractionDigits:3,maximumFractionDigits:3})} <span class="par">medio</span></td>
+     <td>${nf2(T('speso'))}</td>
+     <td>${nf2(totSave)}</td>
+     <td>${nf2(totSave2)}</td>
+     <td><strong>${nf2(T('speso')+totSave)}</strong></td></tr>`;
+  renderBimestri();
+}
+
+/* ── bollette per bimestre ──
+   bollette:[{da,a,kwh,eur}] con da/a = mese 1‑12 dell'anno. Il risparmio usa gli stessi
+   kWh dal solare e lo stesso prezzo della tabella annuale, così le righe sommano al totale. */
+function renderBimestri(){
+  const tb=document.getElementById('bimBody'), tf=document.getElementById('bimFoot');
+  tb.innerHTML=''; tf.innerHTML='';
+  const righe=[];
+  ST.anni.forEach(a=>(a.bollette||[]).forEach(b=>{
+    const mesi=[]; for(let m=b.da-1;m<=b.a-1;m++) mesi.push(m);
+    const ok=mesi.every(m=>a.sol[m]!=null&&a.imm[m]!=null&&a.rete[m]!=null);
+    const auto=ok?mesi.reduce((s,m)=>s+a.sol[m]-a.imm[m],0):null;
+    const rete=ok?mesi.reduce((s,m)=>s+a.rete[m],0):null;
+    const save=ok?auto*(+ST.prezzoPieno||0):null;
+    righe.push({y:a.y, lab:ABBR[b.da-1]+(b.a!==b.da?'–'+ABBR[b.a-1]:'')+' '+a.y,
+                auto, rete, tot:ok?auto+rete:null, kwh:b.kwh, eur:b.eur, save});
+  }));
+  const ultimi=righe.slice(-12);   /* al massimo gli ultimi due anni di bollette */
+  const dash='<span class="par">—</span>';
+  ultimi.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${r.lab}</td>
+      <td>${r.tot!=null?nf0(r.tot):dash}</td><td>${r.auto!=null?nf0(r.auto):dash}</td>
+      <td>${r.rete!=null?nf0(r.rete):dash}</td><td>${nf0(r.kwh)}</td>
+      <td>${nf2(r.eur)}</td>
+      <td>${r.save!=null?'<strong>'+nf2(r.eur+r.save)+'</strong>':dash}</td>
+      <td>${r.save!=null?nf2(r.save):dash}</td>`;
+    tb.appendChild(tr);
+  });
+  const anno=ultimi.length?ultimi[ultimi.length-1].y:null;
+  const R=ultimi.filter(r=>r.y===anno&&r.save!=null);
+  const S=k=>R.reduce((s,r)=>s+r[k],0);
+  if(R.length){
+    tf.innerHTML=`<tr><td>Totale ${anno}</td><td>${nf0(S('tot'))}</td><td>${nf0(S('auto'))}</td>
+      <td>${nf0(S('rete'))}</td><td>${nf0(S('kwh'))}</td><td>${nf2(S('eur'))}</td>
+      <td>${nf2(S('eur')+S('save'))}</td><td>${nf2(S('save'))}</td></tr>`;
+  }
+  /* mesi con letture ma senza bolletta (es. gennaio 2026, rimasto fuori da tutte le bollette) */
+  const h=document.getElementById('bimHint');
+  const a=ST.anni.find(x=>x.y===anno);
+  if(!a){ h.style.display='none'; return; }
+  const coperti=new Set(); (a.bollette||[]).forEach(b=>{for(let m=b.da-1;m<=b.a-1;m++) coperti.add(m);});
+  const fuori=copertura(a).filter(m=>!coperti.has(m));
+  const autoFuori=fuori.reduce((s,m)=>s+(a.sol[m]||0)-(a.imm[m]||0),0);
+  h.style.display='';
+  h.innerHTML = fuori.length
+    ? `${fuori.map(m=>MESI[m]).join(', ')} ${anno} ha le letture ma nessuna bolletta: il suo risparmio
+       (${nf2(autoFuori*(+ST.prezzoPieno||0))} €) è nella tabella annuale ma non qui, perciò il totale qui sopra è più basso.`
+    : `Tutti i mesi con letture del ${anno} sono coperti da una bolletta.`;
+}
+
+/* ── pannello inserimento ── */
+function annoCorr(){ return ST.anni.find(a=>a.y===+document.getElementById('yearSel').value); }
+
+function buildYearSel(keep){
+  const s=document.getElementById('yearSel');
+  s.innerHTML=ST.anni.map(a=>`<option value="${a.y}">${a.y}</option>`).join('');
+  s.value = keep ?? ST.anni[ST.anni.length-1].y;
+}
+function buildEntry(){
+  const a=annoCorr(); if(!a) return;
+  document.getElementById('spesaIn').value = a.speso ?? '';
+  document.getElementById('prezzoIn').value = a.prezzo || '';
+  const ft=document.getElementById('fonteTag');
+  const mis = a.fonte==='misurato';
+  ft.textContent = mis ? 'da bolletta' : 'stimato';
+  ft.className = 'bar-status ' + (mis?'st-clean':'st-dirty');
+  ft.title = mis
+    ? 'Ricavato dalle voci della bolletta: energia + rete/oneri + accisa, più IVA.'
+    : 'Nessuna bolletta dettagliata per questo anno: ricavato da (speso − quote fisse) / kWh fatturati.';
+  const tb=document.getElementById('entryBody'); tb.innerHTML='';
+  for(let m=0;m<12;m++){
+    const sol=a.sol[m], imm=a.imm[m], rete=a.rete[m];
+    const has = sol!=null||imm!=null||rete!=null;
+    const auto = (sol!=null&&imm!=null)? sol-imm : null;
+    const tot  = (auto!=null&&rete!=null)? auto+rete : null;
+    const tr=document.createElement('tr');
+    if(has) tr.className='filled';
+    tr.innerHTML=`<td>${MESI[m]}</td>
+      <td><input type="number" data-k="sol"  data-m="${m}" value="${sol??''}"></td>
+      <td><input type="number" data-k="imm"  data-m="${m}" value="${imm??''}"></td>
+      <td><input type="number" data-k="rete" data-m="${m}" value="${rete??''}"></td>
+      <td class="calc">${auto!=null?nf0(auto):'—'}</td>
+      <td class="calc">${tot!=null?nf0(tot):'—'}</td>`;
+    tb.appendChild(tr);
+  }
+}
+document.getElementById('entryBody').addEventListener('input',e=>{
+  const inp=e.target; if(!inp.matches('input[type=number]')) return;
+  const a=annoCorr(), m=+inp.dataset.m, k=inp.dataset.k;
+  const raw=inp.value.trim();
+  a[k][m] = raw===''? null : parseFloat(raw.replace(',','.'));
+  if(Number.isNaN(a[k][m])) a[k][m]=null;
+  markDirty(); render(); refreshCalc();
+});
+/* solo le due colonne calcolate, per non rubare il focus mentre scrivi */
+function refreshCalc(){
+  const a=annoCorr();
+  [...document.querySelectorAll('#entryBody tr')].forEach((tr,m)=>{
+    const sol=a.sol[m],imm=a.imm[m],rete=a.rete[m];
+    const auto=(sol!=null&&imm!=null)?sol-imm:null;
+    const tot=(auto!=null&&rete!=null)?auto+rete:null;
+    const c=tr.querySelectorAll('.calc');
+    c[0].textContent=auto!=null?nf0(auto):'—';
+    c[1].textContent=tot!=null?nf0(tot):'—';
+    tr.classList.toggle('filled', sol!=null||imm!=null||rete!=null);
+  });
+}
+document.getElementById('spesaIn').addEventListener('input',e=>{
+  const a=annoCorr(); const raw=e.target.value.trim();
+  a.speso = raw===''?0:parseFloat(raw.replace(',','.'))||0;
+  markDirty(); render();
+});
+document.getElementById('prezzoIn').addEventListener('input',e=>{
+  const a=annoCorr(); const raw=e.target.value.trim();
+  a.prezzo = raw===''?0:parseFloat(raw.replace(',','.'))||0;
+  a.fonte='corretto a mano';           /* non spacciarlo più per misurato */
+  const ft=document.getElementById('fonteTag');
+  ft.textContent='corretto a mano'; ft.className='bar-status st-dirty';
+  markDirty(); render();
+});
+document.getElementById('prezzoPienoIn').addEventListener('input',e=>{
+  const raw=e.target.value.trim();
+  ST.prezzoPieno = raw===''?0:parseFloat(raw.replace(',','.'))||0;
+  markDirty(); render();
+});
+document.getElementById('yearSel').addEventListener('change',()=>{buildEntry();});
+document.getElementById('addYear').addEventListener('click',()=>{
+  const last=Math.max(...ST.anni.map(a=>a.y));
+  const y=last+1;
+  if(ST.anni.some(a=>a.y===y)) return;
+  const prec=ST.anni[ST.anni.length-1];
+  ST.anni.push({y, sol:Array(12).fill(null), imm:Array(12).fill(null),
+                rete:Array(12).fill(null), speso:0,
+                prezzo:prec?prec.prezzo:0.275, fonte:'stimato', prov:true});
+  ST.anni.sort((a,b)=>a.y-b.y);
+  buildYearSel(y); buildEntry(); markDirty(); render();
+});
+
+function markDirty(){
+  dirty=true;
+  try{ localStorage.setItem(LSKEY, JSON.stringify(ST)); }catch(e){}
+  paintStatus();
+}
+function paintStatus(){
+  const s=document.getElementById('status');
+  s.textContent = dirty ? 'modifiche non salvate nel file' : 'file allineato';
+  s.className = 'bar-status ' + (dirty?'st-dirty':'st-clean');
+  document.getElementById('saveHint').className = dirty?'hint warn':'hint';
+  document.getElementById('saveHint').innerHTML = dirty
+    ? 'Le modifiche sono per ora solo nel browser. Premi <strong>Salva nel file</strong> per scriverle dentro l\'HTML, altrimenti si perdono svuotando i dati del browser.'
+    : 'Il file su disco contiene esattamente questi numeri.';
+}
+
+/* ── salvataggio ──
+   Una pagina file:// non può riscriversi da sola. Due strade:
+   1. File System Access API — sovrascrive il file al suo posto (Chrome/Edge)
+   2. download — ripiego: il file finisce in Download e va spostato a mano       */
+function serialize(){
+  const doc=document.documentElement.cloneNode(true);
+  doc.querySelector('#dati').textContent='\n'+JSON.stringify(ST,null,1)+'\n';
+  ['#c1','#c2','#tbody','#tfoot','#bimBody','#bimFoot','#bimHint','#entryBody','#yearSel','#tip'].forEach(sel=>{
+    const n=doc.querySelector(sel); if(n) n.innerHTML='';
+  });
+  const e=doc.querySelector('#entry'); if(e) e.removeAttribute('open');
+  return '<!doctype html>\n'+doc.outerHTML;
+}
+document.getElementById('saveBtn').addEventListener('click',async()=>{
+  ST.aggiornato=new Date().toISOString().slice(0,10);
+  const html=serialize();
+  const nome='AAA fotovoltaico bilancio 2021-2026.html';
+  let salvato=false;
+  if(window.showSaveFilePicker){
+    try{
+      const h=await showSaveFilePicker({suggestedName:nome,
+        types:[{description:'Pagina HTML',accept:{'text/html':['.html']}}]});
+      const w=await h.createWritable(); await w.write(html); await w.close();
+      salvato=true;
+    }catch(err){ if(err.name==='AbortError') return; /* altrimenti ripiega sul download */ }
+  }
+  if(!salvato){
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+    a.download=nome; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    alert('Il file aggiornato è stato scaricato in Download.\n\n'+
+          'Spostalo in  - Castiglione\\- EDISON  sostituendo quello vecchio.');
+  }
+  dirty=false;
+  try{ localStorage.removeItem(LSKEY); }catch(e){}
+  paintStatus(); render();
+});
+
+window.addEventListener('beforeunload',e=>{ if(dirty){ e.preventDefault(); e.returnValue=''; } });
+
+/* ── avvio ── */
+document.getElementById('prezzoPienoIn').value = ST.prezzoPieno ?? 0.31;
+buildYearSel(); buildEntry(); paintStatus(); render();
+</script>
+
+
+</body></html>

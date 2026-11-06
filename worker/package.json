@@ -1,0 +1,12 @@
+{
+  "name": "casa-cocis-letture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

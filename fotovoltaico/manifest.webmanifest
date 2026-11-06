@@ -1,0 +1,17 @@
+{
+ "name": "Fotovoltaico",
+ "short_name": "Fotovoltaico",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#b86e00",
+ "theme_color": "#b86e00",
+ "icons": [
+  {
+   "src": "icona.svg",
+   "sizes": "any",
+   "type": "image/svg+xml",
+   "purpose": "any"
+  }
+ ]
+}

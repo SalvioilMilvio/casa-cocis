@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d5c">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Acqua — Cocis</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Acqua Cocis">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
+<link rel="stylesheet" href="../style.css">
+<style>
+.porta{max-width:380px; margin:40px auto; background:var(--card); border-radius:var(--r);
+  box-shadow:var(--sh); padding:22px}
+.porta h2{font-size:20px; margin-bottom:6px}
+.porta p{color:var(--mut); font-size:15px; margin-bottom:4px}
+.porta label{display:block; font-size:14px; color:var(--mut); margin:14px 0 4px}
+.porta input[type=password]{width:100%; font:inherit; font-size:18px; padding:11px; color:var(--ink);
+  background:var(--bg); border:1px solid var(--line); border-radius:10px}
+.porta .ricorda{display:flex; gap:8px; align-items:center; margin-top:12px; font-size:14px; color:var(--mut)}
+.porta .ricorda input{width:18px; height:18px}
+.bott{display:block; width:100%; text-align:center; font:inherit; font-size:16px; font-weight:600;
+  padding:13px; margin-top:16px; border:0; border-radius:10px; background:var(--blu2); color:#fff; cursor:pointer}
+.bott:disabled{opacity:.5; cursor:default}
+.porta .msg{padding:10px 12px; border-radius:10px; font-size:15px; margin-top:12px;
+  background:var(--badbg); color:var(--bad)}
+.esci{background:none; border:0; font:inherit; font-size:14px; color:var(--mut);
+  text-decoration:underline; cursor:pointer; padding:0}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+
+<header class="top" id="testa" hidden>
+  <div class="wrap">
+    <div class="brand">
+      <span class="drop" aria-hidden="true">💧</span>
+      <div>
+        <h1>Acqua — Condominio Cocis</h1>
+        <p class="sub">Castiglione Torinese · fornitura SMAT</p>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Sezioni">
+      <a href="#stato">Stato</a>
+      <a href="#andamento">Andamento</a>
+      <a href="#utenti">Utenze</a>
+      <a href="#bollette">Bollette</a>
+      <a href="#storico">Storico</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="porta" id="porta">
+    <h2>Acqua — Condominio Cocis</h2>
+    <p>Consumi e ripartizione delle bollette SMAT.</p>
+    <p>Pagina riservata ai quattro condomini.</p>
+    <form id="modulo">
+      <label for="pw">Password</label>
+      <input type="password" id="pw" autocomplete="current-password"
+             autocapitalize="off" autocorrect="off" spellcheck="false" required>
+      <label class="ricorda"><input type="checkbox" id="ricorda" checked> Resta aperta su questo telefono</label>
+      <button class="bott" id="entra" type="submit">Entra</button>
+    </form>
+    <div class="msg" id="errore" hidden></div>
+  </section>
+  <div id="app"></div>
+</main>
+
+<footer class="wrap foot" id="piede" hidden>
+  <p>Dati aggiornati al <span id="aggiornato">—</span>. I consumi sono calcolati dalle letture dei contatori, nessun totale è scritto a mano.</p>
+  <p class="tiny">Pagina riservata. Nessun dato viene raccolto da chi la visita.
+    <button class="esci" id="esci" type="button">Esci da questo telefono</button></p>
+</footer>
+
+<script>
+/* Qui dentro non ci sono numeri. I dati arrivano dal servizio delle letture,
+   che li tiene cifrati e li consegna solo a chi manda la password giusta.
+   Nel repository, che è pubblico, c'è soltanto il file cifrato. */
+
+const SERVIZIO = 'https://casa-cocis-letture.casa-cocis.workers.dev';
+const CHIAVE_LOCALE = 'cocis-acqua-pw';
+
+const porta = document.getElementById('porta');
+const errore = document.getElementById('errore');
+const entra = document.getElementById('entra');
+
+function sbaglia(testo) {
+  errore.textContent = testo;
+  errore.hidden = false;
+  entra.disabled = false;
+  entra.textContent = 'Entra';
+}
+
+async function chiediDati(password) {
+  const r = await fetch(SERVIZIO + '/dati', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  const c = await r.json().catch(() => ({}));
+  if (r.status === 403) { const e = new Error('password'); e.password = true; throw e; }
+  if (!r.ok || !c.dati) throw new Error(c.errore || 'servizio');
+  return c.dati;
+}
+
+async function apri(password) {
+  const testo = JSON.stringify(await chiediDati(password));
+
+  // app.js chiede 'dati.json' accanto a sé: glielo serviamo noi, così resta
+  // identico a com'era quando i dati stavano in chiaro nel repository.
+  const rete = window.fetch.bind(window);
+  window.fetch = (url, opt) => String(url) === 'dati.json'
+    ? Promise.resolve(new Response(testo, { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    : rete(url, opt);
+
+  porta.hidden = true;
+  document.getElementById('testa').hidden = false;
+  document.getElementById('piede').hidden = false;
+  const app = document.getElementById('app');
+  app.innerHTML = '<p class="loading">Carico i dati…</p>';
+
+  // app.js vive un livello più su e punta a "carica/": da qui va corretto,
+  // altrimenti il bottone dell'inserimento finisce su un indirizzo che non esiste.
+  new MutationObserver(() => {
+    app.querySelectorAll('a[href="carica/"]').forEach(a => { a.setAttribute('href', '../carica/'); });
+  }).observe(app, { childList: true, subtree: true });
+
+  const s = document.createElement('script');
+  s.src = '../app.js';
+  document.body.appendChild(s);
+}
+
+async function prova(password, ricorda) {
+  entra.disabled = true;
+  entra.textContent = 'Apro…';
+  errore.hidden = true;
+  try {
+    await apri(password);
+    if (ricorda) { try { localStorage.setItem(CHIAVE_LOCALE, password); } catch { /* finestra privata */ } }
+  } catch (e) {
+    sbaglia(e && e.password
+      ? 'Password sbagliata.'
+      : 'Non riesco a contattare il servizio. Controlla la connessione e riprova.');
+    if (e && e.password) { try { localStorage.removeItem(CHIAVE_LOCALE); } catch { /* ignora */ } }
+  }
+}
+
+document.getElementById('modulo').addEventListener('submit', ev => {
+  ev.preventDefault();
+  prova(document.getElementById('pw').value, document.getElementById('ricorda').checked);
+});
+
+document.getElementById('esci').addEventListener('click', () => {
+  try { localStorage.removeItem(CHIAVE_LOCALE); } catch { /* ignora */ }
+  location.replace(location.pathname);
+});
+
+/* Apertura automatica: password nel link (#p=...) o già salvata sul telefono.
+   Il link può portare anche il token personale (#t=...): lo mettiamo da parte
+   qui, così il bottone "Inserimento dati" funziona senza aprire un altro link. */
+(function () {
+  const dalLink = new URLSearchParams(location.hash.slice(1));
+  const token = dalLink.get('t');
+  if (token) { try { localStorage.setItem('cocis-token', token); } catch { /* finestra privata */ } }
+
+  const password = dalLink.get('p');
+  if (password || token) history.replaceState(null, '', location.pathname);   // via dalla barra degli indirizzi
+  if (password) {
+    prova(password, true);
+    return;
+  }
+  let salvata = null;
+  try { salvata = localStorage.getItem(CHIAVE_LOCALE); } catch { /* ignora */ }
+  if (salvata) prova(salvata, false);
+})();
+</script>
+</body>
+</html>

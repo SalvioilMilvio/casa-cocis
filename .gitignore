@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.DS_Store
+estrai.py
+node_modules/
+.dev.vars
+.wrangler/
+.tokens.json
+link-personali.txt
+PASSWORD.txt
+migra-dati.mjs
+dati.json
