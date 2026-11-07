@@ -11,13 +11,15 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💧</text></svg>">
 <link rel="stylesheet" href="../style.css">
 <style>
-/* Qui si scrivono dei numeri e basta: fondo neutro, senza il blu della dashboard. */
+/* Qui si scrivono dei numeri e basta: fondo grigio, senza il blu della dashboard.
+   Grigio pieno e non un bianco sporco: sui telefoni con i colori caldi
+   un quasi-bianco si legge crema. */
 :root{
-  --bg:#f4f4f3; --card:#fff; --ink:#1f1f1e; --mut:#64645f; --line:#e3e3e0;
-  --sh:0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.05);
+  --bg:#e9e9e9; --card:#fff; --ink:#1e1e1e; --mut:#5f5f5f; --line:#d4d4d4;
+  --sh:0 1px 2px rgba(0,0,0,.05), 0 6px 20px rgba(0,0,0,.06);
 }
 @media (prefers-color-scheme:dark){
-  :root{ --bg:#1a1a19; --card:#242423; --ink:#e9e9e6; --mut:#9b9b96; --line:#353533; }
+  :root{ --bg:#1b1b1b; --card:#262626; --ink:#e8e8e8; --mut:#9a9a9a; --line:#373737; }
 }
 .carica{max-width:480px; margin:20px auto; display:grid; gap:14px}
 .scheda{background:var(--card); border-radius:var(--r); box-shadow:var(--sh); padding:18px}
