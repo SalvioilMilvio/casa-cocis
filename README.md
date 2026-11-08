@@ -6,8 +6,8 @@ Cruscotto di casa, pubblicato con GitHub Pages.
   SMAT fra le quattro utenze del condominio. Chiede una password.
 - **Energia** (`fotovoltaico/`) — bilancio fotovoltaico, bollette Edison. Pagina aperta.
 - **Inserimento letture** (`carica/`) — un link personale per condomino, che apre
-  il proprio contatore e quello generale: il contatore comune lo legge chi passa
-  di lì. Quello di un altro condomino resta fuori portata.
+  tutti e cinque i contatori: si parte dal proprio, ma chi fa il giro li scrive
+  tutti. Il link dice chi sta inserendo, non limita cosa può inserire.
 
 ## Dove stanno i dati
 
