@@ -45,9 +45,13 @@ a{color:var(--blu2)}
 .inserisci{display:block; text-align:center; text-decoration:none; font-size:20px; font-weight:700;
   padding:18px 16px; margin-bottom:16px; border-radius:var(--r); box-shadow:var(--sh)}
 .inserisci small{display:block; font-size:14px; font-weight:500}
-.inserisci.ok{background:#2e7d5b; color:#fff}
-.inserisci.warn{background:#f5c518; color:#2b2200}
-.inserisci.bad{background:#c62828; color:#fff}
+/* Il bottone non cambia piu' colore: tingere di giallo mezza pagina per un
+   decimo sopra la soglia faceva piu' rumore che informazione. Lo stato lo dice
+   l'etichetta qui dentro, e il riquadro "Consumo attuale" resta colorato. */
+.inserisci{background:var(--blu2); color:#fff}
+.inserisci small{margin-top:4px}
+.inserisci .tag{vertical-align:1px; margin-right:4px}
+@media (prefers-color-scheme:dark){ .inserisci{color:#0b2231} }
 @media (prefers-color-scheme:dark){ .nav a{color:var(--mut)} .nav a:hover{background:#1b2630; color:var(--ink)} }
 
 /* ---------- sezioni ---------- */

@@ -110,25 +110,40 @@ function spark(per, soglia) {
    fra la lettura che chiude questa bolletta e quella che chiudeva la precedente.
    Le due tornate non cadono mai nei giorni esatti del periodo SMAT, e non importa:
    conta che il periodo sia lo stesso per tutti e quattro, cosi' le quote tornano. */
-function letturaAl(serie, data) {
-  const fino = (serie || []).filter(r => r.data <= data);
-  return fino.length ? fino[fino.length - 1] : null;
+/* I quattro contatori non si riescono mai a leggere lo stesso giorno. Per ogni
+   confine si prende quindi la lettura piu' vicina entro quindici giorni, prima
+   o dopo che sia: lo scarto e' comune a tutti e si semplifica nelle proporzioni.
+   Se un'utenza non ha letture in quella finestra resta fuori dal conto e la
+   scheda lo dichiara, invece di pescare di nascosto una lettura di mesi prima. */
+const GIORNI_CONFINE = 15;
+
+function letturaVicina(serie, data, giorni = GIORNI_CONFINE) {
+  const t = Date.parse(data);
+  let scelta = null, minimo = Infinity;
+  for (const r of serie || []) {
+    const d = Math.abs(Date.parse(r.data) - t) / 86400000;
+    if (d <= giorni && d < minimo) { minimo = d; scelta = r; }
+  }
+  return scelta;
 }
 
 function ripartizione(b, utenti, individuali, confinePrec) {
-  const righe = [];
+  const righe = [], mancanti = [];
   for (const u of utenti) {
-    const a = letturaAl(individuali[u.id], b.confine);
-    const p = confinePrec ? letturaAl(individuali[u.id], confinePrec) : null;
-    if (!a || !p) continue;
-    righe.push({ nome: u.nome, mc: a.lettura - p.lettura, da: p.lettura, a: a.lettura });
+    const a = letturaVicina(individuali[u.id], b.confine);
+    const p = confinePrec ? letturaVicina(individuali[u.id], confinePrec) : null;
+    if (!a || !p) { mancanti.push(u.nome); continue; }
+    righe.push({
+      nome: u.nome, mc: a.lettura - p.lettura,
+      da: p.lettura, a: a.lettura, dal: p.data, al: a.data,
+    });
   }
   const tot = righe.reduce((s, r) => s + r.mc, 0);
   righe.forEach(r => {
     r.quota = tot ? r.mc / tot : 0;
     r.importo = b.importo * r.quota;
   });
-  return { righe, tot, comune: b.mc - tot, dal: confinePrec, al: b.confine };
+  return { righe, tot, comune: b.mc - tot, dal: confinePrec, al: b.confine, mancanti };
 }
 
 /* ----------------------------------------------------------------- sezioni */
@@ -167,8 +182,8 @@ function sezStato(d, genNuovo, perGen, ultimoGiro) {
   }
 
   return `<section id="stato">
-    <a class="inserisci ${cl}" href="carica/">Inserimento dati
-      <small>Consumo ${etich}: ${n2(up.mcg)} mc/giorno</small></a>
+    <a class="inserisci" href="carica/">Inserimento dati
+      <small><span class="tag ${cl}">${etich}</span> ${n2(up.mcg)} mc/giorno</small></a>
     <h2>Stato attuale</h2>
     <div class="kpis">
       <div class="kpi">
@@ -245,7 +260,7 @@ function sezBollette(d) {
     const r = ripartizione(b, d.utenti, d.individuali, prec ? prec.confine : b.confine_precedente);
     const righe = r.righe.map(x => `<tr>
         <td>${esc(x.nome)}</td>
-        <td class="let">${n0(x.da)} → ${n0(x.a)}</td>
+        <td class="let" title="letture del ${dataIT(x.dal)} e del ${dataIT(x.al)}">${n0(x.da)} → ${n0(x.a)}</td>
         <td>${n0(x.mc)}</td>
         <td>${pct(x.quota)}</td>
         <td><b>${eur(x.importo)}</b></td>
@@ -270,6 +285,10 @@ function sezBollette(d) {
       <div class="foot">
         ${quadra ? '✓ La somma coincide con l\'importo della bolletta.'
                  : '⚠ La somma non coincide con l\'importo della bolletta.'}
+        ${r.mancanti.length
+          ? `<b>Fuori dal conto: ${r.mancanti.map(esc).join(', ')}</b>, senza letture
+             a meno di ${GIORNI_CONFINE} giorni da uno dei due confini.`
+          : ''}
         ${r.comune >= 0
           ? `Parte comune e perdite: ${n0(r.comune)} mc, ripartiti in proporzione ai consumi.`
           : `Attenzione: i contatori individuali segnano ${n0(-r.comune)} mc in più
