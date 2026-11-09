@@ -125,3 +125,10 @@ details .inner{padding:4px 16px 14px}
 .foot .tiny{font-size:12px; opacity:.8}
 .loading{color:var(--mut); padding:40px 0}
 .nowrap{white-space:nowrap}
+
+/* Lo storico: le tornate che chiudono una bolletta, e le letture dentro la ripartizione. */
+tr.confine td{background:var(--okbg)}
+.bollo{display:inline-block; margin-left:6px; padding:1px 7px; border-radius:999px;
+  font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
+  background:var(--ok); color:var(--card); vertical-align:1px}
+td.let{font-variant-numeric:tabular-nums; color:var(--mut); white-space:nowrap}

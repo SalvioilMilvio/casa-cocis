@@ -106,16 +106,29 @@ function spark(per, soglia) {
 
 /* ------------------------------------------------------------- ripartizione */
 
-function ripartizione(b, utenti) {
-  const righe = utenti
-    .filter(u => b.letture[u.id])
-    .map(u => ({ nome: u.nome, mc: b.letture[u.id].mc }));
+/* I metri cubi di ognuno non sono scritti da nessuna parte: sono la differenza
+   fra la lettura che chiude questa bolletta e quella che chiudeva la precedente.
+   Le due tornate non cadono mai nei giorni esatti del periodo SMAT, e non importa:
+   conta che il periodo sia lo stesso per tutti e quattro, cosi' le quote tornano. */
+function letturaAl(serie, data) {
+  const fino = (serie || []).filter(r => r.data <= data);
+  return fino.length ? fino[fino.length - 1] : null;
+}
+
+function ripartizione(b, utenti, individuali, confinePrec) {
+  const righe = [];
+  for (const u of utenti) {
+    const a = letturaAl(individuali[u.id], b.confine);
+    const p = confinePrec ? letturaAl(individuali[u.id], confinePrec) : null;
+    if (!a || !p) continue;
+    righe.push({ nome: u.nome, mc: a.lettura - p.lettura, da: p.lettura, a: a.lettura });
+  }
   const tot = righe.reduce((s, r) => s + r.mc, 0);
   righe.forEach(r => {
     r.quota = tot ? r.mc / tot : 0;
     r.importo = b.importo * r.quota;
   });
-  return { righe, tot, comune: b.mc - tot };
+  return { righe, tot, comune: b.mc - tot, dal: confinePrec, al: b.confine };
 }
 
 /* ----------------------------------------------------------------- sezioni */
@@ -226,10 +239,13 @@ function sezUtenti(d) {
 }
 
 function sezBollette(d) {
-  const carte = d.bollette.map(b => {
-    const r = ripartizione(b, d.utenti);
+  // Le bollette stanno dalla piu' recente: quella prima e' la successiva nell'elenco.
+  const carte = d.bollette.map((b, i) => {
+    const prec = d.bollette[i + 1];
+    const r = ripartizione(b, d.utenti, d.individuali, prec ? prec.confine : b.confine_precedente);
     const righe = r.righe.map(x => `<tr>
         <td>${esc(x.nome)}</td>
+        <td class="let">${n0(x.da)} → ${n0(x.a)}</td>
         <td>${n0(x.mc)}</td>
         <td>${pct(x.quota)}</td>
         <td><b>${eur(x.importo)}</b></td>
@@ -242,11 +258,12 @@ function sezBollette(d) {
         <span class="eur">${eur(b.importo)}</span>
         <span class="per">${dataIT(b.periodo.dal)} → ${dataIT(b.periodo.al)} ·
           ${n0(b.mc)} mc fatturati · ${n2(b.eur_mc)} €/mc</span>
+        <span class="per">ripartita sulle letture ${r.dal ? dataIT(r.dal) + ' → ' : 'fino al '}${dataIT(r.al)}</span>
       </div>
       <div class="scroll"><table>
-        <thead><tr><th>Utenza</th><th>mc</th><th>quota</th><th>da pagare</th></tr></thead>
+        <thead><tr><th>Utenza</th><th>lettura</th><th>mc</th><th>quota</th><th>da pagare</th></tr></thead>
         <tbody>${righe}
-          <tr class="tot"><td>Totale</td><td>${n0(r.tot)}</td><td>100%</td>
+          <tr class="tot"><td>Totale</td><td></td><td>${n0(r.tot)}</td><td>100%</td>
             <td>${eur(somma)}</td></tr>
         </tbody>
       </table></div>
@@ -295,12 +312,20 @@ function sezStorico(d, perGen, genVecchio) {
   }).join('');
   const date = [...new Set(d.utenti.flatMap(u => (d.individuali[u.id] || []).map(x => x.data)))]
     .sort().reverse().slice(0, 24);
+  /* Le tornate che chiudono una bolletta non sono letture come le altre: da quelle
+     due esce la ripartizione dei costi, quindi nello storico si devono riconoscere. */
+  const confini = new Map();
+  d.bollette.forEach(b => { if (b.confine_precedente) confini.set(b.confine_precedente, `apre ${b.etichetta}`); });
+  d.bollette.forEach(b => confini.set(b.confine, `chiude ${b.etichetta}`));
+
   const corpo = date.map(dt => {
     const celle = d.utenti.map(u => {
       const v = (d.individuali[u.id] || []).find(x => x.data === dt);
       return `<td>${v ? n0(v.lettura) : '—'}</td>`;
     }).join('');
-    return `<tr><td>${dataIT(dt)}</td>${celle}</tr>`;
+    const segno = confini.get(dt);
+    return `<tr${segno ? ' class="confine"' : ''}>
+      <td>${dataIT(dt)}${segno ? ` <span class="bollo">${esc(segno)}</span>` : ''}</td>${celle}</tr>`;
   }).join('');
 
   return `<section id="storico">
@@ -321,7 +346,8 @@ function sezStorico(d, perGen, genVecchio) {
         <thead><tr><th>Data</th>${letture}</tr></thead>
         <tbody>${corpo}</tbody></table></div>
         <p style="font-size:13px;color:var(--mut)">Un trattino vuol dire che quel contatore
-        non è stato letto in quella data.</p>
+        non è stato letto in quella data. Le righe in evidenza sono le tornate che chiudono
+        una bolletta: la ripartizione si fa sulla differenza fra due di queste.</p>
       </div>
     </details>
   </section>`;

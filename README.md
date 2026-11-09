@@ -24,6 +24,22 @@ Il contenuto è **solo letture dei contatori** e i dati essenziali delle bollett
 utenza sono calcolati dalla pagina: non c'è nessun totale scritto a mano, così non
 possono divergere dalle letture.
 
+## Come si ripartisce una bolletta
+
+Ogni bolletta porta un campo `confine`: la data della tornata di letture che la
+chiude. I metri cubi di ciascuna utenza sono la **differenza fra il proprio
+contatore a quel confine e al confine della bolletta precedente**; le quote, e
+quindi gli importi, escono da lì. La più vecchia della serie porta anche
+`confine_precedente`, che le fa da apertura.
+
+Le tornate non cadono nei giorni esatti del periodo SMAT — il contatore generale
+lo legge l'azienda quando passa, i quattro individuali li leggiamo noi. Non
+importa: conta che il periodo sia **lo stesso per tutti e quattro**, perché la
+ripartizione è proporzionale e uno scarto comune si semplifica.
+
+Nello storico le righe che chiudono o aprono una bolletta sono evidenziate: sono
+le uniche letture da cui dipendono dei soldi.
+
 Il contatore generale è stato sostituito nel 2024: le due serie sono marcate
 `"contatore": "vecchio"` e `"nuovo"` e non vanno sommate.
 
